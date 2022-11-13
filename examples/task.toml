@@ -3,22 +3,15 @@
   [tasks.hello_world]
   cmds = [
     "echo \"hello world\"",
-    "foo=bar; echo foo: $foo",
   ]
 
-  [tasks.hello_world2]
+  [tasks.pwd]
   dir = "/tmp"
   cmds = [
-    "pwd",
-  ]
-
-  [tasks.hello_world3]
-  env = {FOO = "bar"}
-  cmds = [
-    "/usr/bin/env",
+    "echo \"my pwd is $(pwd)\"",
   ]
 
   # this task executes `scripts/no_cmd.sh`
   [tasks.no_cmd]
-  env = {BAR = "bar"}
+  env = {GREETING = "Hello"}
 
