@@ -1,0 +1,19 @@
+[tasks]
+
+  [tasks.hello_world]
+  cmds = [
+    "echo \"hello world\"",
+    "foo=bar; echo foo: $foo",
+  ]
+
+  [tasks.hello_world2]
+  dir = "/tmp"
+  cmds = [
+    "pwd",
+  ]
+
+  [tasks.hello_world3]
+  env = {FOO = "bar"}
+  cmds = [
+    "/usr/bin/env",
+  ]
