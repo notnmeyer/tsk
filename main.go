@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"time"
 
 	"github.com/naoina/toml"
+	flag "github.com/spf13/pflag"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
@@ -153,8 +153,8 @@ func ConvertEnvToStringSlice(env map[string]string) []string {
 }
 
 func parseFlags() {
-	flag.StringVar(&taskFile, "f", "task.toml", "taskfile to use")
-	flag.BoolVar(&listTasks, "l", false, "list tasks")
+	flag.StringVarP(&taskFile, "file", "f", "task.toml", "taskfile to use")
+	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
 	flag.Parse()
 	cliTasks = flag.Args()
 }

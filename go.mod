@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/naoina/toml v0.1.1
+	github.com/spf13/pflag v1.0.5
 	mvdan.cc/sh/v3 v3.5.1
 )
 
