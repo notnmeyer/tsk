@@ -62,8 +62,18 @@ func main() {
 			Stderr: os.Stderr,
 		}
 
-		for _, cmd := range task.Cmds {
-			err = RunCommand(cmd, task.Dir, env, opts)
+		// if a task contains tasks, run them
+		if len(task.Cmds) > 0 {
+			for _, cmd := range task.Cmds {
+				err = RunCommand(cmd, task.Dir, env, opts)
+				if err != nil {
+					panic(err)
+				}
+			}
+			// if there are no cmds, assume we intend to run a script with the name name as the task
+		} else {
+			script := fmt.Sprintf("./scripts/%s.sh", name)
+			err = RunCommand(script, task.Dir, env, opts)
 			if err != nil {
 				panic(err)
 			}
