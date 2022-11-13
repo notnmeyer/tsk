@@ -61,7 +61,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// run the tasks
 	if listTasks {
 		listTasksFromTaskFile(&config)
 	} else {
