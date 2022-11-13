@@ -64,7 +64,7 @@ func main() {
 	if listTasks {
 		listTasksFromTaskFile(&config)
 	} else {
-		err = runTasks(&config)
+		err = runTasks(&config, &cliTasks)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -72,8 +72,8 @@ func main() {
 	}
 }
 
-func runTasks(config *taskConfig) error {
-	for _, task := range cliTasks {
+func runTasks(config *taskConfig, tasks *[]string) error {
+	for _, task := range *tasks {
 		fmt.Printf("-- Task [%s]\n", task)
 
 		taskConfig := config.Tasks[task]

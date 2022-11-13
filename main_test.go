@@ -81,3 +81,21 @@ func TestConvertEnvToStringSlice(t *testing.T) {
 		}
 	}
 }
+
+func TestRunTasks(t *testing.T) {
+	config := taskConfig{
+		Tasks: map[string]Task{
+			"foo": {
+				Cmds: []string{"echo foo"},
+			},
+			"bar": {
+				Cmds: []string{"echo bar"},
+			},
+		},
+	}
+
+	err := runTasks(&config, &[]string{"foo", "bar"})
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+}
