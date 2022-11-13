@@ -27,7 +27,7 @@ func TestConvertEnv(t *testing.T) {
 	}
 
 	expected := []string{"FOO=bar"}
-	actual := ConvertEnv(env)
+	actual := ConvertEnvToStringSlice(env)
 
 	if len(actual) != len(expected) {
 		t.Errorf("Expected %d, got %d", len(expected), len(actual))
@@ -37,5 +37,28 @@ func TestConvertEnv(t *testing.T) {
 		if v != expected[i] {
 			t.Errorf("Expected %s, got %s", expected[i], v)
 		}
+	}
+}
+
+func TestVerifyTasks(t *testing.T) {
+	config := taskConfig{
+		Tasks: map[string]Task{
+			"foo": {
+				Cmds: []string{"echo foo"},
+			},
+			"bar": {
+				Cmds: []string{"echo bar"},
+			},
+		},
+	}
+
+	err := verifyTasks(&config, []string{"foo", "bar"})
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	err = verifyTasks(&config, []string{"foo", "baz"})
+	if err == nil {
+		t.Errorf("Expected error, got nil")
 	}
 }

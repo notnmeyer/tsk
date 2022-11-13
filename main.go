@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -15,10 +17,10 @@ import (
 )
 
 type taskConfig struct {
-	Tasks map[string]Tasks
+	Tasks map[string]Task
 }
 
-type Tasks struct {
+type Task struct {
 	Cmds []string
 	Dir  string
 	Env  map[string]string
@@ -30,28 +32,46 @@ type Opts struct {
 	Stderr io.Writer
 }
 
+var (
+	taskFile string
+	cliTasks []string
+)
+
 func main() {
-	f, err := os.Open("task.toml")
+	parseFlags()
+
+	// open the task file
+	f, err := os.Open(taskFile)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 
+	// parse the task file
 	var config taskConfig
 	if err := toml.NewDecoder(f).Decode(&config); err != nil {
 		panic(err)
 	}
 
-	for name, task := range config.Tasks {
-		fmt.Printf("[%s]\n", name)
+	// verify the tasks provided at the command line exist in the task file
+	err = verifyTasks(&config, cliTasks)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-		if task.Dir == "" {
-			task.Dir = "."
+	// run the tasks
+	for _, task := range cliTasks {
+		fmt.Printf("-- Task [%s]\n", task)
+
+		taskConfig := config.Tasks[task]
+		if taskConfig.Dir == "" {
+			taskConfig.Dir = "."
 		}
 
 		var env []string
-		if len(task.Env) > 0 {
-			env = ConvertEnv(task.Env)
+		if len(taskConfig.Env) > 0 {
+			env = ConvertEnvToStringSlice(taskConfig.Env)
 		} else {
 			env = os.Environ()
 		}
@@ -62,18 +82,20 @@ func main() {
 			Stderr: os.Stderr,
 		}
 
-		// if a task contains tasks, run them
-		if len(task.Cmds) > 0 {
-			for _, cmd := range task.Cmds {
-				err = RunCommand(cmd, task.Dir, env, opts)
+		// if a task contains cmds, run them
+		if len(taskConfig.Cmds) > 0 {
+			for _, cmd := range taskConfig.Cmds {
+				err = RunCommand(cmd, taskConfig.Dir, env, opts)
 				if err != nil {
 					panic(err)
 				}
 			}
-			// if there are no cmds, assume we intend to run a script with the name name as the task
+			// if there are no cmds then we intend to run a script with the name name as the task
 		} else {
-			script := fmt.Sprintf("./scripts/%s.sh", name)
-			err = RunCommand(script, task.Dir, env, opts)
+			// scripts path is relative to taskFile
+			taskFileDir := filepath.Dir(taskFile)
+			script := fmt.Sprintf("./%s/scripts/%s.sh", taskFileDir, task)
+			err = RunCommand(script, taskConfig.Dir, env, opts)
 			if err != nil {
 				panic(err)
 			}
@@ -106,10 +128,26 @@ func RunCommand(cmd string, dir string, env []string, opts Opts) error {
 	return nil
 }
 
-func ConvertEnv(env map[string]string) []string {
+func ConvertEnvToStringSlice(env map[string]string) []string {
 	var envs []string
 	for k, v := range env {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}
 	return envs
+}
+
+func parseFlags() {
+	flag.StringVar(&taskFile, "f", "task.toml", "taskfile to use")
+	flag.Parse()
+	cliTasks = flag.Args()
+}
+
+// verifies the tasks provided at the command line exist
+func verifyTasks(config *taskConfig, tasks []string) error {
+	for _, task := range tasks {
+		if _, ok := config.Tasks[task]; !ok {
+			return fmt.Errorf("task '%s' not found in taskfile", task)
+		}
+	}
+	return nil
 }

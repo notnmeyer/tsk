@@ -1,24 +1,11 @@
 [tasks]
 
-  [tasks.hello_world]
+  [tasks.build]
   cmds = [
-    "echo \"hello world\"",
-    "foo=bar; echo foo: $foo",
+    "go build -o build/taskrunner *.go",
   ]
 
-  [tasks.hello_world2]
-  dir = "/tmp"
+  [tasks.test]
   cmds = [
-    "pwd",
+    "go test -v ./...",
   ]
-
-  [tasks.hello_world3]
-  env = {FOO = "bar"}
-  cmds = [
-    "/usr/bin/env",
-  ]
-
-  # this task executes `scripts/no_cmd.sh`
-  [tasks.no_cmd]
-  env = {BAR = "bar"}
-
