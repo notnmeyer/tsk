@@ -88,9 +88,10 @@ func RunCommand(cmd string, dir string, env []string, opts Opts) error {
 	if err != nil {
 		return err
 	}
-	err2 := r.Run(context.TODO(), f)
-	if err2 != nil {
-		return err2
+
+	err = r.Run(context.TODO(), f)
+	if err != nil {
+		return err
 	}
 	return nil
 }
