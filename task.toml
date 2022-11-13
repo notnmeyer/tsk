@@ -18,6 +18,7 @@
     "/usr/bin/env",
   ]
 
+  # this task executes `scripts/no_cmd.sh`
   [tasks.no_cmd]
   env = {BAR = "bar"}
 
