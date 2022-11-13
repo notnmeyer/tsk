@@ -33,9 +33,9 @@ type Opts struct {
 }
 
 var (
-	cliTasks  []string
-	listTasks bool
-	taskFile  string
+	cliTasks  []string // the tasks to run from the command line
+	listTasks bool     // if true, list the tasks in the task file and dont run any tasks
+	taskFile  string   // the task file to use
 )
 
 func main() {
