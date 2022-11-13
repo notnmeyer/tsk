@@ -9,3 +9,8 @@
   cmds = [
     "go test -v ./...",
   ]
+
+  [tasks.deps]
+  cmds = [
+    "go mod tidy",
+  ]
