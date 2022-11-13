@@ -33,8 +33,9 @@ type Opts struct {
 }
 
 var (
-	taskFile string
-	cliTasks []string
+	cliTasks  []string
+	listTasks bool
+	taskFile  string
 )
 
 func main() {
@@ -61,6 +62,18 @@ func main() {
 	}
 
 	// run the tasks
+	if listTasks {
+		listTasksFromTaskFile(&config)
+	} else {
+		err = runTasks(&config)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}
+}
+
+func runTasks(config *taskConfig) error {
 	for _, task := range cliTasks {
 		fmt.Printf("-- Task [%s]\n", task)
 
@@ -85,22 +98,26 @@ func main() {
 		// if a task contains cmds, run them
 		if len(taskConfig.Cmds) > 0 {
 			for _, cmd := range taskConfig.Cmds {
-				err = RunCommand(cmd, taskConfig.Dir, env, opts)
+				err := RunCommand(cmd, taskConfig.Dir, env, opts)
 				if err != nil {
 					panic(err)
 				}
 			}
 			// if there are no cmds then we intend to run a script with the name name as the task
 		} else {
-			// scripts path is relative to taskFile
-			taskFileDir := filepath.Dir(taskFile)
-			script := fmt.Sprintf("./%s/scripts/%s.sh", taskFileDir, task)
-			err = RunCommand(script, taskConfig.Dir, env, opts)
+			script := fmt.Sprintf("%s/%s.sh", scriptDir(), task)
+			err := RunCommand(script, taskConfig.Dir, env, opts)
 			if err != nil {
 				panic(err)
 			}
 		}
 	}
+	return nil
+}
+
+// returns the expected script dir, which is "scripts" relative to the task file
+func scriptDir() string {
+	return fmt.Sprintf("%s/scripts", filepath.Dir(taskFile))
 }
 
 func RunCommand(cmd string, dir string, env []string, opts Opts) error {
@@ -138,6 +155,7 @@ func ConvertEnvToStringSlice(env map[string]string) []string {
 
 func parseFlags() {
 	flag.StringVar(&taskFile, "f", "task.toml", "taskfile to use")
+	flag.BoolVar(&listTasks, "l", false, "list tasks")
 	flag.Parse()
 	cliTasks = flag.Args()
 }
@@ -150,4 +168,15 @@ func verifyTasks(config *taskConfig, tasks []string) error {
 		}
 	}
 	return nil
+}
+
+func listTasksFromTaskFile(config *taskConfig) {
+	for task := range config.Tasks {
+		fmt.Println(task)
+		if len(config.Tasks[task].Cmds) > 0 {
+			fmt.Printf("	cmds: %v\n", config.Tasks[task].Cmds)
+		} else {
+			fmt.Printf("	script: %s/%s.sh\n", scriptDir(), task)
+		}
+	}
 }
