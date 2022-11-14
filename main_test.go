@@ -8,13 +8,11 @@ import (
 
 func TestRunCmd(t *testing.T) {
 	out := new(bytes.Buffer)
-	opts := Opts{
+	exec := Executor{
 		Stdout: out,
-		Stdin:  os.Stdin,
-		Stderr: os.Stderr,
 	}
 
-	RunCommand("echo hello $WORLD", ".", []string{"WORLD=world"}, opts)
+	exec.RunCommand("echo hello $WORLD", ".", []string{"WORLD=world"})
 
 	if out.String() != "hello world\n" {
 		t.Errorf("Expected 'hello world', got %s", out)
@@ -94,7 +92,13 @@ func TestRunTasks(t *testing.T) {
 		},
 	}
 
-	err := runTasks(&config, &[]string{"foo", "bar"})
+	exec := Executor{
+		Stdout: os.Stdout,
+		Stdin:  os.Stdin,
+		Stderr: os.Stderr,
+	}
+
+	err := exec.runTasks(&config, &[]string{"foo", "bar"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
