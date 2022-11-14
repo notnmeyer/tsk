@@ -59,8 +59,8 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 					panic(err)
 				}
 			}
-			// if there are no cmds then we intend to run a script with the name name as the task
 		} else {
+			// if there are no cmds then we intend to run a script with the name name as the task
 			script := fmt.Sprintf("%s/%s.sh", exec.Config.ScriptDir, task)
 			err := exec.runCommand(script, taskConfig.Dir, env)
 			if err != nil {
