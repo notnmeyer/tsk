@@ -1,4 +1,4 @@
-package main
+package task
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ func TestRunCmd(t *testing.T) {
 		Stdout: out,
 	}
 
-	exec.RunCommand("echo hello $WORLD", ".", []string{"WORLD=world"})
+	exec.runCommand("echo hello $WORLD", ".", []string{"WORLD=world"})
 
 	if out.String() != "hello world\n" {
 		t.Errorf("Expected 'hello world', got %s", out)
@@ -38,29 +38,6 @@ func TestConvertEnv(t *testing.T) {
 	}
 }
 
-func TestVerifyTasks(t *testing.T) {
-	config := taskConfig{
-		Tasks: map[string]Task{
-			"foo": {
-				Cmds: []string{"echo foo"},
-			},
-			"bar": {
-				Cmds: []string{"echo bar"},
-			},
-		},
-	}
-
-	err := verifyTasks(&config, []string{"foo", "bar"})
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
-
-	err = verifyTasks(&config, []string{"foo", "baz"})
-	if err == nil {
-		t.Errorf("Expected error, got nil")
-	}
-}
-
 func TestConvertEnvToStringSlice(t *testing.T) {
 	env := map[string]string{
 		"FOO": "bar",
@@ -81,7 +58,7 @@ func TestConvertEnvToStringSlice(t *testing.T) {
 }
 
 func TestRunTasks(t *testing.T) {
-	config := taskConfig{
+	config := Config{
 		Tasks: map[string]Task{
 			"foo": {
 				Cmds: []string{"echo foo"},
@@ -98,7 +75,7 @@ func TestRunTasks(t *testing.T) {
 		Stderr: os.Stderr,
 	}
 
-	err := exec.runTasks(&config, &[]string{"foo", "bar"})
+	err := exec.RunTasks(&config, &[]string{"foo", "bar"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}

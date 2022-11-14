@@ -1,16 +1,13 @@
 [tasks]
 
   [tasks.build]
-  cmds = [
-    "go build -o build/taskrunner *.go",
-  ]
+  cmds = ["go build cmd/tsk/*.go"]
 
   [tasks.test]
-  cmds = [
-    "go test ./...",
-  ]
+  cmds = ["go test ./..."]
 
   [tasks.deps]
-  cmds = [
-    "go mod tidy",
-  ]
+  cmds = ["go mod tidy"]
+
+  [tasks.clean]
+  cmds = ["rm -f tsk"]
