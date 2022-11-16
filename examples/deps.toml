@@ -1,0 +1,12 @@
+[tasks]
+
+  [tasks.setup]
+  cmds = ["echo 'doing setup...'"]
+
+  [tasks.setup2]
+  cmds = ["echo 'doing setup2...'"]
+
+  [tasks.main]
+  deps = ["setup", "setup2"]
+  cmds = ["echo 'running main...'"]
+
