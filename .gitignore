@@ -1,4 +1,5 @@
 .vscode/
 build/
 
-./tsk
+# the binary. its convenient to build it in the root for testing
+tsk
