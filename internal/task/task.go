@@ -38,7 +38,6 @@ type Executor struct {
 
 func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 	for _, task := range *tasks {
-		fmt.Printf("-- task [%s]\n", task)
 
 		taskConfig := config.Tasks[task]
 		if taskConfig.Dir == "" {
@@ -60,6 +59,7 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			}
 		}
 
+		fmt.Printf("-- task [%s]\n", task)
 		// if a task contains cmds, run them
 		if len(taskConfig.Cmds) > 0 {
 			for _, cmd := range taskConfig.Cmds {
