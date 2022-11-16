@@ -1,7 +1,7 @@
 [tasks]
 
   [tasks.setup]
-  cmds = ["echo 'doing setup...'"]
+  cmds = ["echo 'doing setup...'", "sleep 2"]
 
   [tasks.setup2]
   cmds = ["echo 'doing setup2...'"]
