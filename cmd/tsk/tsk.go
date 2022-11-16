@@ -20,6 +20,7 @@ func main() {
 	flag.Parse()
 	tasks = flag.Args()
 
+	// cfg is the parsed task file
 	cfg, err := task.NewTaskConfig(taskFile)
 	if err != nil {
 		panic(err)
@@ -32,6 +33,7 @@ func main() {
 		Config: cfg,
 	}
 
+	// verify the tasks at the cli exist
 	if err := verifyTasks(exec.Config, tasks); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -52,6 +54,15 @@ func verifyTasks(config *task.Config, tasks []string) error {
 	for _, task := range tasks {
 		if _, ok := config.Tasks[task]; !ok {
 			return fmt.Errorf("task '%s' not found in taskfile", task)
+		}
+
+		// if a task specifies deps, verify they exist
+		if len(config.Tasks[task].Deps) > 0 {
+			for _, dep := range config.Tasks[task].Deps {
+				if _, ok := config.Tasks[dep]; !ok {
+					return fmt.Errorf("task '%s' not found in taskfile", dep)
+				}
+			}
 		}
 	}
 	return nil

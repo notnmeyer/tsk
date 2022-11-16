@@ -65,6 +65,7 @@ func TestRunTasks(t *testing.T) {
 			},
 			"bar": {
 				Cmds: []string{"echo bar"},
+				Deps: []string{"foo"},
 			},
 		},
 	}

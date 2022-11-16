@@ -24,6 +24,7 @@ type Config struct {
 // represents an individual task
 type Task struct {
 	Cmds []string
+	Deps []string
 	Dir  string
 	Env  map[string]string
 }
@@ -49,6 +50,14 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			env = ConvertEnvToStringSlice(taskConfig.Env)
 		} else {
 			env = os.Environ()
+		}
+
+		// run the task's dependencies
+		if len(taskConfig.Deps) > 0 {
+			err := exec.RunTasks(config, &taskConfig.Deps)
+			if err != nil {
+				return err
+			}
 		}
 
 		// if a task contains cmds, run them
@@ -99,6 +108,11 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 func (exec *Executor) ListTasksFromTaskFile(config *Config) {
 	for task := range config.Tasks {
 		fmt.Println(task)
+
+		if len(config.Tasks[task].Deps) > 0 {
+			fmt.Printf("	deps: %v\n", config.Tasks[task].Deps)
+		}
+
 		if len(config.Tasks[task].Cmds) > 0 {
 			fmt.Printf("	cmds: %v\n", config.Tasks[task].Cmds)
 		} else {
