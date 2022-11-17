@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/naoina/toml"
@@ -38,8 +39,6 @@ type Executor struct {
 
 func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 	for _, task := range *tasks {
-		fmt.Printf("-- task [%s]\n", task)
-
 		taskConfig := config.Tasks[task]
 		if taskConfig.Dir == "" {
 			taskConfig.Dir = "."
@@ -52,12 +51,16 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			env = os.Environ()
 		}
 
-		// run the task's dependencies
+		var wg sync.WaitGroup
 		if len(taskConfig.Deps) > 0 {
-			err := exec.RunTasks(config, &taskConfig.Deps)
-			if err != nil {
-				return err
+			wg.Add(len(taskConfig.Deps))
+			for _, dep := range taskConfig.Deps {
+				go func(dep string) {
+					defer wg.Done()
+					exec.RunTasks(config, &[]string{dep})
+				}(dep)
 			}
+			wg.Wait()
 		}
 
 		// if a task contains cmds, run them

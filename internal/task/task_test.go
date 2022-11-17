@@ -2,7 +2,7 @@ package task
 
 import (
 	"bytes"
-	"os"
+	"regexp"
 	"testing"
 )
 
@@ -70,14 +70,52 @@ func TestRunTasks(t *testing.T) {
 		},
 	}
 
+	out := new(bytes.Buffer)
 	exec := Executor{
-		Stdout: os.Stdout,
-		Stdin:  os.Stdin,
-		Stderr: os.Stderr,
+		Stdout: out,
 	}
 
-	err := exec.RunTasks(&config, &[]string{"foo", "bar"})
+	err := exec.RunTasks(&config, &[]string{"bar"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
+	}
+
+	// test the deps run
+	foo := regexp.MustCompile(`foo`)
+	if !foo.Match(out.Bytes()) {
+		t.Errorf("Expected output to contain 'foo', got %s", out.String())
+	}
+}
+
+func TestDepsRunInParallel(t *testing.T) {
+	config := Config{
+		Tasks: map[string]Task{
+			"one": {
+				Cmds: []string{"sleep 1", "echo one"},
+			},
+			"two": {
+				Cmds: []string{"echo two"},
+			},
+			"zero": {
+				Cmds: []string{"echo zero"},
+				Deps: []string{"one", "two"},
+			},
+		},
+	}
+
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	err := exec.RunTasks(&config, &[]string{"zero"})
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	// test the deps run
+	re := regexp.MustCompile(`two\none\nzero`)
+	if !re.Match(out.Bytes()) {
+		t.Errorf("Expected tasks to complete in a specific order (two, one, zero)', got %s", out.String())
 	}
 }

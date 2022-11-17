@@ -33,19 +33,20 @@ func main() {
 		Config: cfg,
 	}
 
+	if listTasks {
+		exec.ListTasksFromTaskFile(exec.Config)
+		return
+	}
+
 	// verify the tasks at the cli exist
 	if err := verifyTasks(exec.Config, tasks); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	if listTasks {
-		exec.ListTasksFromTaskFile(exec.Config)
-	} else {
-		if err := exec.RunTasks(exec.Config, &tasks); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	if err := exec.RunTasks(exec.Config, &tasks); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 
