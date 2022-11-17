@@ -63,7 +63,6 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			wg.Wait()
 		}
 
-		fmt.Printf("-- task [%s]\n", task)
 		// if a task contains cmds, run them
 		if len(taskConfig.Cmds) > 0 {
 			for _, cmd := range taskConfig.Cmds {
