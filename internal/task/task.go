@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/naoina/toml"
@@ -50,13 +51,17 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			env = os.Environ()
 		}
 
-		// run the task's dependencies
-		// if len(taskConfig.Deps) > 0 {
-		// 	err := exec.RunTasks(config, &taskConfig.Deps)
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// }
+		var wg sync.WaitGroup
+		if len(taskConfig.Deps) > 0 {
+			wg.Add(len(taskConfig.Deps))
+			for _, dep := range taskConfig.Deps {
+				go func(dep string) {
+					defer wg.Done()
+					exec.RunTasks(config, &[]string{dep})
+				}(dep)
+			}
+			wg.Wait()
+		}
 
 		fmt.Printf("-- task [%s]\n", task)
 		// if a task contains cmds, run them

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"sync"
 
 	"github.com/notnmeyer/tsk/internal/task"
 	flag "github.com/spf13/pflag"
@@ -34,40 +33,20 @@ func main() {
 		Config: cfg,
 	}
 
+	if listTasks {
+		exec.ListTasksFromTaskFile(exec.Config)
+		return
+	}
+
 	// verify the tasks at the cli exist
 	if err := verifyTasks(exec.Config, tasks); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	if listTasks {
-		exec.ListTasksFromTaskFile(exec.Config)
-		return
-	}
-
-	var wg sync.WaitGroup
-	for _, task := range tasks {
-
-		// TODO: this doesn't run deps of deps
-
-		// run the task's dependencies
-		if len(exec.Config.Tasks[task].Deps) > 0 {
-			wg.Add(len(exec.Config.Tasks[task].Deps))
-			for _, dep := range exec.Config.Tasks[task].Deps {
-				go func(dep string) {
-					defer wg.Done()
-					// TODO: capture errors and return them through a channel
-					exec.RunTasks(exec.Config, &[]string{dep})
-				}(dep)
-			}
-			wg.Wait()
-		}
-
-		// run the primary task
-		if err := exec.RunTasks(exec.Config, &tasks); err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	if err := exec.RunTasks(exec.Config, &tasks); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 
