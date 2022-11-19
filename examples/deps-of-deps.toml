@@ -4,12 +4,12 @@
   cmds = ["sleep 1", "echo 'doing setup...'"]
 
   [tasks.setup2]
-  deps = ["setup3"]
+  deps = [["setup3"]]
   cmds = ["echo 'doing setup2...'"]
 
   [tasks.setup3]
   cmds = ["echo 'doing setup3...'"]
 
   [tasks.main]
-  deps = ["setup", "setup2"]
+  deps = [["setup", "setup2"]]
   cmds = ["echo 'running main...'"]

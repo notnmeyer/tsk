@@ -10,6 +10,6 @@
   cmds = ["echo 'doing setup3...'"]
 
   [tasks.main]
-  deps = ["setup", "setup2", "setup3"]
+  deps = [["setup", "setup2", "setup3"]]
   cmds = ["echo 'running main...'"]
 
