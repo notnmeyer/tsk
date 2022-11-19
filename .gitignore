@@ -3,3 +3,5 @@ build/
 
 # the binary. its convenient to build it in the root for testing
 tsk
+
+dist/

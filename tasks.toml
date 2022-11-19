@@ -1,7 +1,14 @@
 [tasks]
 
   [tasks.build]
-  cmds = ["go build cmd/tsk/*.go"]
+  cmds = [
+    "goreleaser build --single-target --snapshot --rm-dist"
+  ]
+
+  [tasks.release]
+  cmds = [
+    "goreleaser release"
+  ]
 
   [tasks.test]
   cmds = ["go test ./..."]
@@ -10,4 +17,7 @@
   cmds = ["go mod tidy"]
 
   [tasks.clean]
-  cmds = ["rm -f tsk"]
+  cmds = [
+    "rm -f tsk",
+    "rm -rf dist"
+  ]
