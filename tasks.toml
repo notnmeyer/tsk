@@ -10,4 +10,7 @@
   cmds = ["go mod tidy"]
 
   [tasks.clean]
-  cmds = ["rm -f tsk"]
+  cmds = [
+    "rm -f tsk",
+    "rm -rf dist"
+  ]
