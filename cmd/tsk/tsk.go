@@ -59,9 +59,11 @@ func verifyTasks(config *task.Config, tasks []string) error {
 
 		// if a task specifies deps, verify they exist
 		if len(config.Tasks[task].Deps) > 0 {
-			for _, dep := range config.Tasks[task].Deps {
-				if _, ok := config.Tasks[dep]; !ok {
-					return fmt.Errorf("task '%s' not found in taskfile", dep)
+			for _, depGroup := range config.Tasks[task].Deps {
+				for _, dep := range depGroup {
+					if _, ok := config.Tasks[dep]; !ok {
+						return fmt.Errorf("task '%s' not found in taskfile", dep)
+					}
 				}
 			}
 		}

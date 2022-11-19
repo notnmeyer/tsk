@@ -65,7 +65,9 @@ func TestRunTasks(t *testing.T) {
 			},
 			"bar": {
 				Cmds: []string{"echo bar"},
-				Deps: []string{"foo"},
+				Deps: [][]string{
+					{"foo"},
+				},
 			},
 		},
 	}
@@ -98,7 +100,9 @@ func TestDepsRunInParallel(t *testing.T) {
 			},
 			"zero": {
 				Cmds: []string{"echo zero"},
-				Deps: []string{"one", "two"},
+				Deps: [][]string{
+					{"one", "two"},
+				},
 			},
 		},
 	}
@@ -117,5 +121,44 @@ func TestDepsRunInParallel(t *testing.T) {
 	re := regexp.MustCompile(`two\none\nzero`)
 	if !re.Match(out.Bytes()) {
 		t.Errorf("Expected tasks to complete in a specific order (two, one, zero)', got %s", out.String())
+	}
+}
+
+func TestDepGroupsRunInTheExpectedOrder(t *testing.T) {
+	config := Config{
+		Tasks: map[string]Task{
+			"one": {
+				Cmds: []string{"sleep 1", "echo one"},
+			},
+			"two": {
+				Cmds: []string{"echo two"},
+			},
+			"three": {
+				Cmds: []string{"echo three"},
+			},
+			"zero": {
+				Cmds: []string{"echo zero"},
+				Deps: [][]string{
+					{"one", "two"},
+					{"three"},
+				},
+			},
+		},
+	}
+
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	err := exec.RunTasks(&config, &[]string{"zero"})
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	// test the deps run
+	re := regexp.MustCompile(`two\none\nthree\nzero`)
+	if !re.Match(out.Bytes()) {
+		t.Errorf("Expected tasks to complete in a specific order (two, one, three, zero)', got %s", out.String())
 	}
 }

@@ -25,7 +25,7 @@ type Config struct {
 // represents an individual task
 type Task struct {
 	Cmds []string
-	Deps []string
+	Deps [][]string
 	Dir  string
 	Env  map[string]string
 }
@@ -51,16 +51,18 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			env = os.Environ()
 		}
 
-		var wg sync.WaitGroup
 		if len(taskConfig.Deps) > 0 {
-			wg.Add(len(taskConfig.Deps))
-			for _, dep := range taskConfig.Deps {
-				go func(dep string) {
-					defer wg.Done()
-					exec.RunTasks(config, &[]string{dep})
-				}(dep)
+			for _, depGroup := range taskConfig.Deps {
+				var wg sync.WaitGroup
+				wg.Add(len(depGroup))
+				for _, dep := range depGroup {
+					go func(dep string) {
+						defer wg.Done()
+						exec.RunTasks(config, &[]string{dep})
+					}(dep)
+				}
+				wg.Wait()
 			}
-			wg.Wait()
 		}
 
 		// if a task contains cmds, run them
