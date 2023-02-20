@@ -2,7 +2,8 @@ before:
   hooks:
     - go mod tidy
 builds:
-  - main: ./cmd/tsk
+  - binary: tsk
+    main: ./cmd/tsk
     env:
       - CGO_ENABLED=0
     goos:
