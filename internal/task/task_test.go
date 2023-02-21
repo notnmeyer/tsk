@@ -172,7 +172,7 @@ func TestFindTaskFile(t *testing.T) {
 	}
 
 	// testDir should be the project root
-	testDir := filepath.Join(cwd, "..", "..", "test", "parent")
+	testDir := filepath.Join(cwd, "..", "..", "test", "child")
 
 	err = os.Chdir(testDir)
 	if err != nil {
