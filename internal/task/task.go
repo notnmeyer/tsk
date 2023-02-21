@@ -18,8 +18,9 @@ import (
 
 // represents parsed task file
 type Config struct {
-	Tasks     map[string]Task
-	ScriptDir string
+	Tasks       map[string]Task
+	ScriptDir   string
+	TaskFileDir string
 }
 
 // represents an individual task
@@ -40,8 +41,9 @@ type Executor struct {
 func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 	for _, task := range *tasks {
 		taskConfig := config.Tasks[task]
+
 		if taskConfig.Dir == "" {
-			taskConfig.Dir = "."
+			taskConfig.Dir = config.TaskFileDir
 		}
 
 		var env []string
@@ -127,7 +129,15 @@ func (exec *Executor) ListTasksFromTaskFile(config *Config) {
 }
 
 func NewTaskConfig(taskFile string) (*Config, error) {
-	// open the task file
+	var err error
+	if taskFile == "" {
+		dir, _ := os.Getwd()
+		taskFile, err = findTaskFile(dir, "tasks.toml")
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	f, err := os.Open(taskFile)
 	if err != nil {
 		return nil, err
@@ -140,15 +150,28 @@ func NewTaskConfig(taskFile string) (*Config, error) {
 		return nil, err
 	}
 
+	// set the task file dir, used as the base for a task's working directory
+	config.TaskFileDir = filepath.Dir(taskFile)
+
 	// set the script dir
-	config.ScriptDir = scriptDir(taskFile)
+	config.ScriptDir = "scripts"
 
 	return &config, nil
 }
 
-// returns the expected script dir, which is "scripts" relative to the task file
-func scriptDir(taskFile string) string {
-	return fmt.Sprintf("%s/scripts", filepath.Dir(taskFile))
+func findTaskFile(dir, taskFile string) (string, error) {
+	path := filepath.Join(dir, taskFile)
+
+	if _, err := os.Stat(path); err == nil {
+		return path, nil
+	}
+
+	parent := filepath.Dir(dir)
+	if parent == dir {
+		return "", fmt.Errorf("could not locate tasks.toml in current directory or parents")
+	}
+
+	return findTaskFile(parent, taskFile)
 }
 
 func ConvertEnvToStringSlice(env map[string]string) []string {

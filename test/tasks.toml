@@ -1,0 +1,6 @@
+[tasks.test]
+cmds = [
+  "echo 'hello world'"
+]
+
+[tasks.test_script]

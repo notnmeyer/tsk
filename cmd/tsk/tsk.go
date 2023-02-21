@@ -16,7 +16,7 @@ func main() {
 	)
 
 	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
-	flag.StringVarP(&taskFile, "file", "f", "tasks.toml", "taskfile to use")
+	flag.StringVarP(&taskFile, "file", "f", "", "taskfile to use")
 	flag.Parse()
 	tasks = flag.Args()
 
