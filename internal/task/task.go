@@ -25,10 +25,11 @@ type Config struct {
 
 // represents an individual task
 type Task struct {
-	Cmds []string
-	Deps [][]string
-	Dir  string
-	Env  map[string]string
+	Cmds   []string
+	Deps   [][]string
+	Dir    string
+	Env    map[string]string
+	DotEnv string
 }
 
 type Executor struct {
@@ -52,6 +53,8 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 		} else {
 			env = os.Environ()
 		}
+
+		// TODO: append DotEnv if set
 
 		if len(taskConfig.Deps) > 0 {
 			for _, depGroup := range taskConfig.Deps {
