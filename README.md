@@ -11,6 +11,11 @@ Hello World!
 ```
 
 ## features
+### tasks.toml locations
+tsk will look for a `tasks.toml` file in the current directory, looking in parent directories if one isn't found.
+
+you can specify a file in another location or with another name with the `--file` flag.
+
 ### dependencies and dependency groups
 tasks can depend on other tasks as dependencies via a task's `deps` key. dependencies are organized in groups represented in toml as nested arrays. dependency groups are executed in the order they are defined in the `deps` key, while tasks within a group are executed in parallel.
 

@@ -2,6 +2,8 @@ package task
 
 import (
 	"bytes"
+	"os"
+	"path/filepath"
 	"regexp"
 	"testing"
 )
@@ -160,5 +162,29 @@ func TestDepGroupsRunInTheExpectedOrder(t *testing.T) {
 	re := regexp.MustCompile(`two\none\nthree\nzero`)
 	if !re.Match(out.Bytes()) {
 		t.Errorf("Expected tasks to complete in a specific order (two, one, three, zero)', got %s", out.String())
+	}
+}
+
+func TestFindTaskFile(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	// testDir should be the project root
+	testDir := filepath.Join(cwd, "..", "..", "test", "child")
+
+	err = os.Chdir(testDir)
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	path, err := findTaskFile(testDir, "tasks.toml")
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	if ok, _ := regexp.Match(`tsk/test/tasks.toml`, []byte(path)); !ok {
+		t.Errorf("Expected tasks.toml path to match to 'tsk/test/tasks.toml' in %s", path)
 	}
 }
