@@ -5,7 +5,14 @@ cmds = [
 
 [tasks.release]
 cmds = [
-  "goreleaser release"
+  "git tag -a v${VERSION}",
+  "git push --tags",
+  "goreleaser release --clean",
+]
+
+[tasks.release_dry]
+cmds = [
+  "goreleaser release --clean --skip-publish --skip-validate"
 ]
 
 [tasks.test]
