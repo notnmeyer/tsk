@@ -125,21 +125,26 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 }
 
 func (exec *Executor) ListTasksFromTaskFile(config *Config) {
+	indent := "  "
 	for task := range config.Tasks {
-		fmt.Println(task)
+		fmt.Printf("[%s]\n", task)
 
 		if len(config.Tasks[task].Deps) > 0 {
-			fmt.Printf("  deps: %v\n", config.Tasks[task].Deps)
+			out := "\n"
+			for _, depGroup := range config.Tasks[task].Deps {
+				out += fmt.Sprintf("%s%s\n", indent+indent, depGroup)
+			}
+			fmt.Printf("%sdeps: %s", indent, out)
 		}
 
 		if len(config.Tasks[task].Cmds) > 0 {
 			cmdString := "\n"
 			for _, cmd := range config.Tasks[task].Cmds {
-				cmdString += fmt.Sprintf("    - %s\n", cmd)
+				cmdString += fmt.Sprintf("%s\"%s\"\n", indent+indent, cmd)
 			}
-			fmt.Printf("  cmds: %s\n", cmdString)
+			fmt.Printf("%scmds: %s\n", indent, cmdString)
 		} else {
-			fmt.Printf("  script: %s/%s.sh\n", exec.Config.ScriptDir, task)
+			fmt.Printf("%sscript: %s/%s.sh\n", indent, exec.Config.ScriptDir, task)
 		}
 	}
 }
