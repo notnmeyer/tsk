@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/naoina/toml"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
@@ -25,10 +26,11 @@ type Config struct {
 
 // represents an individual task
 type Task struct {
-	Cmds []string
-	Deps [][]string
-	Dir  string
-	Env  map[string]string
+	Cmds   []string
+	Deps   [][]string
+	Dir    string
+	Env    map[string]string
+	DotEnv string
 }
 
 type Executor struct {
@@ -51,6 +53,16 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			env = ConvertEnvToStringSlice(taskConfig.Env)
 		} else {
 			env = os.Environ()
+		}
+
+		// append dotenv
+		if taskConfig.DotEnv != "" {
+			dotEnv, err := godotenv.Read(filepath.Join(taskConfig.Dir, taskConfig.DotEnv))
+			if err != nil {
+				return err
+			}
+
+			env = append(env, ConvertEnvToStringSlice(dotEnv)...)
 		}
 
 		if len(taskConfig.Deps) > 0 {

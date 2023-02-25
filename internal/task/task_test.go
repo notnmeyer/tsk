@@ -188,3 +188,27 @@ func TestFindTaskFile(t *testing.T) {
 		t.Errorf("Expected tasks.toml path to match to 'tsk/test/tasks.toml' in %s", path)
 	}
 }
+
+func TestDotEnv(t *testing.T) {
+	cwd, _ := os.Getwd()
+	dir := filepath.Join(cwd, "..", "..", "examples")
+	os.Chdir(dir)
+
+	config, _ := NewTaskConfig(filepath.Join(dir, "dotenv.toml"))
+
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	err := exec.RunTasks(config, &[]string{"dotenv"})
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	expected := "bar\nbaz\n"
+	re := regexp.MustCompile(expected)
+	if !re.Match(out.Bytes()) {
+		t.Errorf("Expected %s', got %s", expected, out.String())
+	}
+}
