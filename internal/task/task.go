@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/naoina/toml"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
@@ -54,7 +55,15 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			env = os.Environ()
 		}
 
-		// TODO: append DotEnv if set
+		// append dotenv
+		if taskConfig.DotEnv != "" {
+			dotEnv, err := godotenv.Read(filepath.Join(taskConfig.Dir, taskConfig.DotEnv))
+			if err != nil {
+				return err
+			}
+
+			env = append(env, ConvertEnvToStringSlice(dotEnv)...)
+		}
 
 		if len(taskConfig.Deps) > 0 {
 			for _, depGroup := range taskConfig.Deps {
