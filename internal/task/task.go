@@ -129,13 +129,17 @@ func (exec *Executor) ListTasksFromTaskFile(config *Config) {
 		fmt.Println(task)
 
 		if len(config.Tasks[task].Deps) > 0 {
-			fmt.Printf("	deps: %v\n", config.Tasks[task].Deps)
+			fmt.Printf("  deps: %v\n", config.Tasks[task].Deps)
 		}
 
 		if len(config.Tasks[task].Cmds) > 0 {
-			fmt.Printf("	cmds: %v\n", config.Tasks[task].Cmds)
+			cmdString := "\n"
+			for _, cmd := range config.Tasks[task].Cmds {
+				cmdString += fmt.Sprintf("    - %s\n", cmd)
+			}
+			fmt.Printf("  cmds: %s\n", cmdString)
 		} else {
-			fmt.Printf("	script: %s/%s.sh\n", exec.Config.ScriptDir, task)
+			fmt.Printf("  script: %s/%s.sh\n", exec.Config.ScriptDir, task)
 		}
 	}
 }
