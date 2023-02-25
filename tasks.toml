@@ -4,6 +4,7 @@ cmds = [
 ]
 
 [tasks.release]
+dotenv = ".env"
 cmds = [
   "git tag -a v${VERSION}",
   "git push --tags",
