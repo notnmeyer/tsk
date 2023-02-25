@@ -194,7 +194,8 @@ func TestDotEnv(t *testing.T) {
 	dir := filepath.Join(cwd, "..", "..", "examples")
 	os.Chdir(dir)
 
-	config, _ := NewTaskConfig(filepath.Join(dir, "dotenv.toml"))
+	var taskFile string
+	config, _ := NewTaskConfig(taskFile)
 
 	out := new(bytes.Buffer)
 	exec := Executor{
