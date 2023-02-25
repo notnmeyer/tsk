@@ -1,17 +1,65 @@
-[tasks]
+# at its simplest, tasks are a series of sequential shell commands expressed
+# as a list of strings
+[tasks.hello_world]
+cmds = [
+  "echo hello world",
+]
 
-  [tasks.hello_world]
-  cmds = [
-    "echo \"hello world\"",
-  ]
+[tasks.pwd]
+dir = "/tmp" # set the working directory for the task 
+cmds = [
+  "echo \"my pwd is $(pwd)\"", # you can use subshells
+]
 
-  [tasks.pwd]
-  dir = "/tmp"
-  cmds = [
-    "echo \"my pwd is $(pwd)\"",
-  ]
+# when `cmds` are omitted tsk attempts to run a script located at `scripts/<task_name>.sh`
+[tasks.no_cmd]
+# set environment variables for a task, must be a single line since an inline table cannot contain
+# newlines in toml 1.0. this will be less horrific in toml 1.1, https://github.com/toml-lang/toml/pull/904
+env = {GREETING = "Hello"}
+# if the env is long, using a single line will probably drive you mad. you can also express the env
+# like this,
+# [tasks.no_cmd.env]
+# GREETING = "Hello"
 
-  # this task executes `scripts/no_cmd.sh`
-  [tasks.no_cmd]
-  env = {GREETING = "Hello"}
+# tasks can have dependencies. dependencies run before cmds. dependencies are other
+# tasks and cannot be shell commands (yet)
+[tasks.deps]
+deps = [["setup1"]]
+cmds = ["echo 'running cmd...'"]
 
+# if a task's dep has deps those are run too
+[tasks.deps_of_deps]
+deps = [["setup4"]]
+cmds = ["echo 'running cmd...'"]
+
+# dependency groups are a way to order dependencies while allowing for parallelization
+[tasks.dep_groups]
+deps = [
+  ["setup1", "setup2"], # setup1 and setup2 run in parallel
+  ["setup3"],           # setup3 runs after the tasks in the previous group complete
+]
+cmds = ["echo 'running cmd...'"]
+
+# a dotenv file can be supplied at the task level. its values are appended to the
+# existing env (which varies depending on whether or not the task provides an `env` key)
+[tasks.dotenv]
+dotenv = ".env"
+env = {FOO = "bar"}
+cmds = [
+  "echo $FOO",
+  "echo $BAR",
+]
+
+# tasks used to demonstrate features above
+[tasks.setup1]
+cmds = ["sleep 1", "echo 'doing setup1...'"]
+
+[tasks.setup2]
+cmds = ["echo 'doing setup2...'"]
+
+[tasks.setup3]
+cmds = ["echo 'doing setup3...'"]
+
+[tasks.setup4]
+deps = [["setup2"]]
+cmds = ["echo 'doing setup4...'"]

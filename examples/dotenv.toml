@@ -1,9 +1,0 @@
-[tasks.dotenv]
-dotenv = ".env"
-cmds = [
-  "echo $FOO",
-  "echo $BAR",
-]
-
-[tasks.dotenv.env]
-FOO = "bar"
