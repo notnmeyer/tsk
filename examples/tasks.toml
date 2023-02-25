@@ -13,9 +13,11 @@ cmds = [
 
 # when `cmds` are omitted tsk attempts to run a script located at `scripts/<task_name>.sh`
 [tasks.no_cmd]
-# set environment variables for a task, must be a single line since its an inline table
+# set environment variables for a task, must be a single line since an inline table cannot contain
+# newlines in toml 1.0. this will be less horrific in toml 1.1, https://github.com/toml-lang/toml/pull/904
 env = {GREETING = "Hello"}
-# alternatively, you can express a task's env like this,
+# if the env is long, using a single line will probably drive you mad. you can also express the env
+# like this,
 # [tasks.no_cmd.env]
 # GREETING = "Hello"
 
