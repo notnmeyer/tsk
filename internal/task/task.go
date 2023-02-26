@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/joho/godotenv"
-	"github.com/naoina/toml"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
@@ -159,15 +159,9 @@ func NewTaskConfig(taskFile string) (*Config, error) {
 		}
 	}
 
-	f, err := os.Open(taskFile)
-	if err != nil {
-		return nil, err
-	}
-	defer f.Close()
-
 	// parse the task file
 	var config Config
-	if err := toml.NewDecoder(f).Decode(&config); err != nil {
+	if _, err := toml.DecodeFile(taskFile, &config); err != nil {
 		return nil, err
 	}
 
