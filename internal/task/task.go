@@ -126,7 +126,9 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 
 func (exec *Executor) ListTasksFromTaskFile(config *Config) {
 	indent := "  "
-	for task := range config.Tasks {
+
+	alphaTaskList := alphabetizeTaskList(&config.Tasks)
+	for _, task := range *alphaTaskList {
 		fmt.Printf("[%s]\n", task)
 
 		if len(config.Tasks[task].Deps) > 0 {
