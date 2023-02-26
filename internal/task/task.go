@@ -138,13 +138,14 @@ func (exec *Executor) ListTasksFromTaskFile(config *Config) {
 		}
 
 		if len(config.Tasks[task].Cmds) > 0 {
-			cmdString := "\n"
+			out := "\n"
 			for _, cmd := range config.Tasks[task].Cmds {
-				cmdString += fmt.Sprintf("%s\"%s\"\n", indent+indent, cmd)
+				out += fmt.Sprintf("%s\"%s\"\n", indent+indent, cmd)
 			}
-			fmt.Printf("%scmds: %s\n", indent, cmdString)
+			fmt.Printf("%scmds: %s\n", indent, out)
 		} else {
-			fmt.Printf("%sscript: %s/%s.sh\n", indent, exec.Config.ScriptDir, task)
+			out := fmt.Sprintf("script: %s/%s.sh\n\n", exec.Config.ScriptDir, task)
+			fmt.Printf("%s%s", indent, out)
 		}
 	}
 }
