@@ -5,20 +5,28 @@ import (
 	"os"
 
 	"github.com/notnmeyer/tsk/internal/task"
+	"github.com/notnmeyer/tsk/internal/version"
 	flag "github.com/spf13/pflag"
 )
 
 func main() {
 	var (
-		listTasks bool
-		taskFile  string
-		tasks     []string
+		listTasks      bool
+		taskFile       string
+		tasks          []string
+		displayVersion bool
 	)
 
 	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
 	flag.StringVarP(&taskFile, "file", "f", "", "taskfile to use")
+	flag.BoolVarP(&displayVersion, "version", "V", false, "display tsk version")
 	flag.Parse()
 	tasks = flag.Args()
+
+	if displayVersion {
+		version.Print()
+		return
+	}
 
 	// cfg is the parsed task file
 	cfg, err := task.NewTaskConfig(taskFile)
