@@ -6,7 +6,7 @@ cmds = [
 [tasks.release]
 dotenv = ".env"
 cmds = [
-  "git tag -a v${VERSION}",
+  "git tag -a v${version}",
   "git push --tags",
   "goreleaser release --clean",
 ]
