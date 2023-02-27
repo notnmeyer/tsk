@@ -5,9 +5,10 @@ import (
 	"os"
 
 	"github.com/notnmeyer/tsk/internal/task"
-	"github.com/notnmeyer/tsk/internal/version"
 	flag "github.com/spf13/pflag"
 )
+
+var version, commit string
 
 func main() {
 	var (
@@ -24,7 +25,7 @@ func main() {
 	tasks = flag.Args()
 
 	if displayVersion {
-		version.Print()
+		fmt.Printf("tsk v%s, git:%s\n", version, commit)
 		return
 	}
 
