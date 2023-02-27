@@ -1,7 +1,6 @@
 [tasks.build]
 cmds = [
   "goreleaser build --single-target --snapshot --clean --output bin/tsk"
-  # "go build -ldflags \"-X version.version=0.0.0\" -o bin/tsk ./cmd/tsk/..."
 ]
 
 [tasks.release]
