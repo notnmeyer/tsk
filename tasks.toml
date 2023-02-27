@@ -21,9 +21,3 @@ cmds = ["go test ./..."]
 
 [tasks.deps]
 cmds = ["go mod tidy"]
-
-[tasks.clean]
-cmds = [
-  "rm -f tsk",
-  "rm -rf dist"
-]
