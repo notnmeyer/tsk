@@ -48,12 +48,8 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			taskConfig.Dir = config.TaskFileDir
 		}
 
-		var env []string
-		if len(taskConfig.Env) > 0 {
-			env = ConvertEnvToStringSlice(taskConfig.Env)
-		} else {
-			env = os.Environ()
-		}
+		// inherit the parent env
+		env := os.Environ()
 
 		// append dotenv
 		if taskConfig.DotEnv != "" {
@@ -64,6 +60,9 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 
 			env = append(env, ConvertEnvToStringSlice(dotEnv)...)
 		}
+
+		// append env
+		env = append(env, ConvertEnvToStringSlice(taskConfig.Env)...)
 
 		if len(taskConfig.Deps) > 0 {
 			for _, depGroup := range taskConfig.Deps {

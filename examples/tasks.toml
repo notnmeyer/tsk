@@ -40,8 +40,8 @@ deps = [
 ]
 cmds = ["echo 'running cmd...'"]
 
-# a dotenv file can be supplied at the task level. its values are appended to the
-# existing env (which varies depending on whether or not the task provides an `env` key)
+# a dotenv file can be supplied at the task level. see the README for information
+# about env var hierarchy
 [tasks.dotenv]
 dotenv = ".env"
 env = {FOO = "bar"}
