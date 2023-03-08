@@ -49,26 +49,10 @@ if you need to write anything more complicated than one or two short commands in
 try `tsk --file examples/tasks.toml no_cmd` to see this in action.
 
 ### environment variables
-there are a couple different ways to set environment variables and the behavior varies
-depending on what you do. environment variables can be set,
+the parent env is always inherited by tasks and you can use both variables defined
+via `env` and `dotenv` keys together. from lowest to highest precedence,
+with higher precedent variables shadowing lower precedent counterparts,
 
-1. via `tasks.<task_name>.env`
-1. via `tasks.<task_name>.dotenv`
-
-there are two cases to consider:
-
-1. when using the `tasks.<task_name>.env` key the parent env _is not_ inherited.
-2. when ommitting `tasks.<task_name>.env` the parent env _is_ inherited.
-
-in both cases above if a dotenv file is supplied its values are appended to the env.
-
-you can see the difference by running the following tasks,
-
-```
-[tasks.no_inherit]
-env = {FOO = "bar"}
-cmds = ["/usr/bin/env"]
-
-[tasks.inherit]
-cmds = ["/usr/bin/env"]
-```
+1. the parent process, e.g., `MY_VAR=hey tsk ...`
+1. `tasks.<task_name>.dotenv`
+1. `tasks.<task_name>.env`
