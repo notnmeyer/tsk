@@ -2,11 +2,20 @@ package task
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
 	"testing"
 )
+
+func TestMain(m *testing.M) {
+	// some tests will load files from ./examples/. for convenience, change the wd to this directory
+	cwd, _ := os.Getwd()
+	dir := filepath.Join(cwd, "..", "..", "examples")
+	os.Chdir(dir)
+	os.Exit(m.Run())
+}
 
 func TestRunCmd(t *testing.T) {
 	out := new(bytes.Buffer)
@@ -84,7 +93,7 @@ func TestRunTasks(t *testing.T) {
 		t.Errorf("Expected no error, got %s", err)
 	}
 
-	// test the deps run
+	// test the deps TestRunTasks
 	foo := regexp.MustCompile(`foo`)
 	if !foo.Match(out.Bytes()) {
 		t.Errorf("Expected output to contain 'foo', got %s", out.String())
@@ -165,19 +174,13 @@ func TestDepGroupsRunInTheExpectedOrder(t *testing.T) {
 	}
 }
 
+// find test/tasks.toml from test/child/
 func TestFindTaskFile(t *testing.T) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
+	cwd, _ := os.Getwd()
+	testDir := filepath.Join(cwd, "..", "test", "child")
 
-	// testDir should be the project root
-	testDir := filepath.Join(cwd, "..", "..", "test", "child")
-
-	err = os.Chdir(testDir)
-	if err != nil {
-		t.Errorf("Expected no error, got %s", err)
-	}
+	os.Chdir(testDir)
+	defer os.Chdir(cwd)
 
 	path, err := findTaskFile(testDir, "tasks.toml")
 	if err != nil {
@@ -190,10 +193,6 @@ func TestFindTaskFile(t *testing.T) {
 }
 
 func TestDotEnv(t *testing.T) {
-	cwd, _ := os.Getwd()
-	dir := filepath.Join(cwd, "..", "..", "examples")
-	os.Chdir(dir)
-
 	var taskFile string
 	config, _ := NewTaskConfig(taskFile)
 
@@ -211,5 +210,34 @@ func TestDotEnv(t *testing.T) {
 	re := regexp.MustCompile(expected)
 	if !re.Match(out.Bytes()) {
 		t.Errorf("Expected %s', got %s", expected, out.String())
+	}
+}
+
+func TestEnvInheritance(t *testing.T) {
+	expected := "baz2"
+	config := Config{
+		Tasks: map[string]Task{
+			"default": {
+				// examples/.env sets BAR=baz
+				DotEnv: ".env",
+				Env:    map[string]string{"BAR": expected},
+				Cmds:   []string{"echo $BAR"},
+			},
+		},
+	}
+
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	err := exec.RunTasks(&config, &[]string{"default"})
+	if err != nil {
+		t.Errorf("Expected no error, got %s", err)
+	}
+
+	re := regexp.MustCompile(expected)
+	if !re.Match(out.Bytes()) {
+		t.Errorf("Expected '%s', got %s", expected, out.String())
 	}
 }
