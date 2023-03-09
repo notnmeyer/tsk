@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -e
+
+if [ -z "$version" ] || [[ "$version" =~ ^v.*$ ]]; then
+  echo "ERROR: \$version must be set to a semver string without the leading 'v'."
+  exit 1
+fi
+
+if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9](-.*)?$ ]]; then
+  echo "Error: '$version' doesnt look like a valid semver string."
+  exit 1
+fi
+
+git tag -a v${version}
+git push --tags
+goreleaser release --clean
+
