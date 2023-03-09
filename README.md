@@ -12,6 +12,25 @@ Hello World!
 
 see `examples/tasks.toml` for complete usage and configuration reference.
 
+## installation
+
+### prebuilt binary
+1. head over to the [releases](https://github.com/notnmeyer/tsk/releases) and grab the URL for your desired release
+1. download it, `wget https://github.com/notnmeyer/tsk/releases/download/v0.1.0/tsk_v0.1.0_Darwin_arm64.tar.gz`
+1. extract it, `tar -xzf /tmp/tsk_v0.1.0_Darwin_arm64.tar.gz`
+1. move it to somewhere in your $PATH, `mv ./tsk ~/bin/`
+
+```
+➜ tsk --version
+tsk v0.1.0, git:46e7d24edc54d07b38c476b167a79a46c091160b
+```
+
+### from source
+1. clone this repo
+1. install goreleaser
+1. tsk uses tsk as its task runner, so if you're bootstrapping, take a look in `tasks.toml` and run the build command manually. you should wind up with a binary at `./bin/tsk`. then you can use the binary to build itself going forward.
+
+
 ## features
 ### tasks.toml locations
 tsk will look for a `tasks.toml` file in the current directory, looking in parent directories if one isn't found.
