@@ -6,7 +6,7 @@ if [ -z "$version" ] || [[ "$version" =~ ^v.*$ ]]; then
   exit 1
 fi
 
-if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]$ ]]; then
+if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9](-.*)?$ ]]; then
   echo "Error: '$version' doesnt look like a valid semver string."
   exit 1
 fi
