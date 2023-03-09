@@ -1,6 +1,8 @@
 before:
   hooks:
     - go mod tidy
+release:
+  prerelease: auto
 builds:
   - binary: tsk
     main: ./cmd/tsk
