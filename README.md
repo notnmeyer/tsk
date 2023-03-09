@@ -28,7 +28,7 @@ tsk v0.1.0, git:46e7d24edc54d07b38c476b167a79a46c091160b
 ### from source
 1. clone this repo
 1. install goreleaser
-1. tsk uses tsk for its build step, so if you're bootstrapping, take a look in `tasks.toml` and run the build command manually. you should wind up with a binary at `./bin/tsk`
+1. tsk uses tsk as its task runner, so if you're bootstrapping, take a look in `tasks.toml` and run the build command manually. you should wind up with a binary at `./bin/tsk`. then you can use the binary to build itself going forward.
 
 
 ## features
