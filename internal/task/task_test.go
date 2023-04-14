@@ -48,25 +48,6 @@ func TestConvertEnv(t *testing.T) {
 	}
 }
 
-func TestConvertEnvToStringSlice(t *testing.T) {
-	env := map[string]string{
-		"FOO": "bar",
-	}
-
-	expected := []string{"FOO=bar"}
-	actual := ConvertEnvToStringSlice(env)
-
-	if len(actual) != len(expected) {
-		t.Errorf("Expected %d, got %d", len(expected), len(actual))
-	}
-
-	for i, v := range actual {
-		if v != expected[i] {
-			t.Errorf("Expected %s, got %s", expected[i], v)
-		}
-	}
-}
-
 func TestRunTasks(t *testing.T) {
 	config := Config{
 		Tasks: map[string]Task{

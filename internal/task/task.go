@@ -194,11 +194,3 @@ func findTaskFile(dir, taskFile string) (string, error) {
 
 	return findTaskFile(parent, taskFile)
 }
-
-func ConvertEnvToStringSlice(env map[string]string) []string {
-	var envs []string
-	for k, v := range env {
-		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
-	}
-	return envs
-}
