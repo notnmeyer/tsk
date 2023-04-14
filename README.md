@@ -68,10 +68,9 @@ if you need to write anything more complicated than one or two short commands in
 try `tsk --file examples/tasks.toml no_cmd` to see this in action.
 
 ### environment variables
-the parent env is always inherited by tasks and you can use both variables defined
-via `env` and `dotenv` keys together. from lowest to highest precedence,
-with higher precedent variables shadowing lower precedent counterparts,
+tasks load environment variables from the follow locations with the following precendence. lower precedent locations are overriden by counterparts lower in the list,
 
 1. the parent process, e.g., `MY_VAR=hey tsk ...`
+1. the top-level `env` key
 1. `tasks.<task_name>.dotenv`
 1. `tasks.<task_name>.env`

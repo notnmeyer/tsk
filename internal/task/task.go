@@ -19,6 +19,7 @@ import (
 
 // represents parsed task file
 type Config struct {
+	Env         map[string]string
 	Tasks       map[string]Task
 	ScriptDir   string
 	TaskFileDir string
@@ -41,15 +42,18 @@ type Executor struct {
 }
 
 func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
+	// inherit the parent env
+	env := os.Environ()
+
+	// append top-level env
+	env = append(env, ConvertEnvToStringSlice(config.Env)...)
+
 	for _, task := range *tasks {
 		taskConfig := config.Tasks[task]
 
 		if taskConfig.Dir == "" {
 			taskConfig.Dir = config.TaskFileDir
 		}
-
-		// inherit the parent env
-		env := os.Environ()
 
 		// append dotenv
 		if taskConfig.DotEnv != "" {

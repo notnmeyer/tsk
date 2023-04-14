@@ -1,3 +1,6 @@
+# the environment can be specified at the top level where it is inherited by all tasks
+env = {NAME = "tsk"}
+
 # at its simplest, tasks are a series of sequential shell commands expressed
 # as a list of strings
 [tasks.hello_world]
@@ -48,6 +51,11 @@ env = {FOO = "bar"}
 cmds = [
   "echo $FOO",
   "echo $BAR",
+]
+
+[tasks.top_level_env]
+cmds = [
+  'echo "My name is $NAME!"'
 ]
 
 # tasks used to demonstrate features above
