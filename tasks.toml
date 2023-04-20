@@ -1,10 +1,29 @@
+[tasks.docker_login]
+dotenv = ".env"
+cmds = [
+  "echo $GITHUB_TOKEN | docker login ghcr.io -u notnmeyer --password-stdin"
+]
+
 [tasks.build]
 cmds = [
   "goreleaser build --single-target --snapshot --clean --output bin/tsk"
 ]
 
+[tasks.build_docker]
+cmds = [
+  "docker build -t ghcr.io/notnmeyer/tsk:$version ."
+]
+
 [tasks.release]
 dotenv = ".env"
+
+[tasks.release_docker]
+deps = [[
+  "build_docker"
+]]
+cmds = [
+  "docker push ghcr.io/notnmeyer/tsk:$version"
+]
 
 [tasks.release_dry]
 cmds = [
