@@ -68,7 +68,7 @@ if you need to write anything more complicated than one or two short commands in
 try `tsk --file examples/tasks.toml no_cmd` to see this in action.
 
 ### environment variables
-tasks load environment variables from the follow locations with the following precendence. lower precedent locations are overriden by counterparts lower in the list,
+tsk loads environment variables and merges them with the precendence listed below. items earlier in the list are overriden by items lower in the list.
 
 1. the parent process, e.g., `MY_VAR=hey tsk ...`
 1. the top-level `env` key
