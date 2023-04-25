@@ -48,25 +48,6 @@ func TestConvertEnv(t *testing.T) {
 	}
 }
 
-func TestConvertEnvToStringSlice(t *testing.T) {
-	env := map[string]string{
-		"FOO": "bar",
-	}
-
-	expected := []string{"FOO=bar"}
-	actual := ConvertEnvToStringSlice(env)
-
-	if len(actual) != len(expected) {
-		t.Errorf("Expected %d, got %d", len(expected), len(actual))
-	}
-
-	for i, v := range actual {
-		if v != expected[i] {
-			t.Errorf("Expected %s, got %s", expected[i], v)
-		}
-	}
-}
-
 func TestRunTasks(t *testing.T) {
 	config := Config{
 		Tasks: map[string]Task{
@@ -191,6 +172,7 @@ func TestFindTaskFile(t *testing.T) {
 	}
 }
 
+// test .env file is loaded
 func TestDotEnv(t *testing.T) {
 	var taskFile string
 	config, _ := NewTaskConfig(taskFile)
@@ -212,6 +194,7 @@ func TestDotEnv(t *testing.T) {
 	}
 }
 
+// `task_name.Env` overrides `task_name.DotEnv`
 func TestEnvInheritance(t *testing.T) {
 	expected := "baz2"
 	config := Config{
@@ -235,6 +218,54 @@ func TestEnvInheritance(t *testing.T) {
 		t.Errorf("Expected no error, got %s", err)
 	}
 
+	re := regexp.MustCompile(expected)
+	if !re.Match(out.Bytes()) {
+		t.Errorf("Expected '%s', got %s", expected, out.String())
+	}
+}
+
+func TestGlobalEnv(t *testing.T) {
+	expected := "baz2"
+	config := Config{
+		Env: map[string]string{"BAR": expected},
+		Tasks: map[string]Task{
+			"default": {
+				Cmds: []string{"echo $BAR"},
+			},
+		},
+	}
+
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	exec.RunTasks(&config, &[]string{"default"})
+	re := regexp.MustCompile(expected)
+	if !re.Match(out.Bytes()) {
+		t.Errorf("Expected '%s', got %s", expected, out.String())
+	}
+}
+
+// a task's env should override the global env
+func TestGlobalEnvInheritance(t *testing.T) {
+	expected := "baz2"
+	config := Config{
+		Env: map[string]string{"BAR": "baz"},
+		Tasks: map[string]Task{
+			"default": {
+				Env:  map[string]string{"BAR": expected},
+				Cmds: []string{"echo $BAR"},
+			},
+		},
+	}
+
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	exec.RunTasks(&config, &[]string{"default"})
 	re := regexp.MustCompile(expected)
 	if !re.Match(out.Bytes()) {
 		t.Errorf("Expected '%s', got %s", expected, out.String())

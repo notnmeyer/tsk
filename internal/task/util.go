@@ -1,6 +1,9 @@
 package task
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 func alphabetizeTaskList(t *map[string]Task) *[]string {
 	var taskNames []string
@@ -9,4 +12,12 @@ func alphabetizeTaskList(t *map[string]Task) *[]string {
 	}
 	sort.Strings(taskNames)
 	return &taskNames
+}
+
+func ConvertEnvToStringSlice(env map[string]string) []string {
+	var envs []string
+	for k, v := range env {
+		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
+	}
+	return envs
 }
