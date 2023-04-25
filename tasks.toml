@@ -16,3 +16,6 @@ cmds = ["go test ./..."]
 
 [tasks.deps]
 cmds = ["go mod tidy"]
+
+[tasks.install_release]
+env = { version = "0.2.0", platform = "Darwin", arch = "arm64" }
