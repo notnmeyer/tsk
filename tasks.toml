@@ -24,7 +24,7 @@ cmds = ["go test ./..."]
 cmds = ["go mod tidy"]
 
 [tasks.install_release]
-env = { version = "0.2.0", platform = "Darwin", arch = "arm64" }
+env = { version = "0.3.0", platform = "Macos", arch = "arm64" }
 
 [tasks.sign]
 dotenv = ".env"

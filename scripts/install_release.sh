@@ -3,10 +3,11 @@ set -eux
 
 tmp_dir=$(mktemp -d)
 install_dir="${HOME}/bin"
+archive_name="tsk_v${version}_${platform}_${arch}.zip"
 
-curl -L -o "${tmp_dir}/tsk_v${version}_${platform}_${arch}.tar.gz" \
-  "https://github.com/notnmeyer/tsk/releases/download/v${version}/tsk_v${version}_${platform}_${arch}.tar.gz"
+curl -L -o "${tmp_dir}/${archive_name}" \
+  "https://github.com/notnmeyer/tsk/releases/download/v${version}/${archive_name}"
 
-tar -xzf "${tmp_dir}/tsk_v${version}_${platform}_${arch}.tar.gz" -C "$tmp_dir"
+unzip "${tmp_dir}/${archive_name}" -d "$tmp_dir"
 
 cp "${tmp_dir}/tsk" "${install_dir}/"
