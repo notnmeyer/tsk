@@ -14,7 +14,7 @@ dotenv = ".env"
 [tasks.release_dry]
 dotenv = ".env"
 cmds = [
-  "goreleaser release --clean --skip-publish --skip-validate --skip-sign"
+  "goreleaser release --clean --skip-publish --skip-validate"
 ]
 
 [tasks.test]
