@@ -1,16 +1,25 @@
 before:
   hooks:
     - go mod tidy
+
 release:
   prerelease: auto
+  extra_files:
+    - glob: ./dist/tsk_macos_arm64.zip
+      name_template: >-
+        {{ .ProjectName }}_v{{ .Version }}_Macos_arm64.zip
+    - glob: ./dist/tsk_macos_amd64.zip
+      name_template: >-
+        {{ .ProjectName }}_v{{ .Version }}_Macos_x86_64.zip
+
 builds:
   - binary: tsk
+    id: linux
     main: ./cmd/tsk
     env:
       - CGO_ENABLED=0
     goos:
       - linux
-      - darwin
     goarch:
       - amd64
       - arm
@@ -23,18 +32,50 @@ builds:
         -s -w
         -X "main.version={{.Version}}"
         -X "main.commit={{.Commit}}"
+  - binary: tsk
+    id: macos
+    main: ./cmd/tsk
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - >-
+        -s -w
+        -X "main.version={{.Version}}"
+        -X "main.commit={{.Commit}}"
+    hooks:
+      post:
+        - cmd: gon gon-{{.Arch}}.hcl
+          output: true
+
 archives:
-  - name_template: >-
+  - builds:
+      - linux
+    name_template: >-
       {{ .ProjectName }}_v{{ .Version }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else if eq .Arch "arm" }}arm_{{ .Arm }}
       {{- else }}{{ .Arch }}{{ end }}
+
 checksum:
-  name_template: 'checksums.txt'
+  name_template: checksums.txt
+  extra_files:
+    - glob: dist/tsk_macos_arm64.zip
+      name_template: >-
+        {{ .ProjectName }}_v{{ .Version }}_Macos_arm64.zip
+    - glob: dist/tsk_macos_amd64.zip
+      name_template: >-
+        {{ .ProjectName }}_v{{ .Version }}_Macos_x86_64.zip
+
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
+
 changelog:
   sort: asc
   filters:
