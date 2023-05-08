@@ -3,12 +3,18 @@ cmds = [
   "goreleaser build --single-target --snapshot --clean --output bin/tsk"
 ]
 
+[tasks.clean]
+cmds = [
+  "rm -rf ./dist/*"
+]
+
 [tasks.release]
 dotenv = ".env"
 
 [tasks.release_dry]
+dotenv = ".env"
 cmds = [
-  "goreleaser release --clean --skip-publish --skip-validate"
+  "goreleaser release --clean --skip-publish --skip-validate --skip-sign"
 ]
 
 [tasks.test]
@@ -19,3 +25,10 @@ cmds = ["go mod tidy"]
 
 [tasks.install_release]
 env = { version = "0.2.0", platform = "Darwin", arch = "arm64" }
+
+[tasks.sign]
+dotenv = ".env"
+cmds = [
+  "gon gon-arm64.hcl",
+  "gon gon-amd64.hcl",
+]
