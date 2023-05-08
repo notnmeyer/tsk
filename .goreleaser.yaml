@@ -7,7 +7,7 @@ release:
   extra_files:
     - glob: ./dist/tsk_macos_arm64.zip
       name_template: >-
-        {{ .ProjectName }}_v{{ .Version }}_Macos_{{ .Arch }}.zip
+        {{ .ProjectName }}_v{{ .Version }}_Macos_arm64.zip
     - glob: ./dist/tsk_macos_amd64.zip
       name_template: >-
         {{ .ProjectName }}_v{{ .Version }}_Macos_x86_64.zip
@@ -68,7 +68,7 @@ checksum:
   extra_files:
     - glob: dist/tsk_macos_arm64.zip
       name_template: >-
-        {{ .ProjectName }}_v{{ .Version }}_Macos_{{ .Arch }}.zip
+        {{ .ProjectName }}_v{{ .Version }}_Macos_arm64.zip
     - glob: dist/tsk_macos_amd64.zip
       name_template: >-
         {{ .ProjectName }}_v{{ .Version }}_Macos_x86_64.zip
