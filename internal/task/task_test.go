@@ -194,15 +194,15 @@ func TestDotEnv(t *testing.T) {
 	}
 }
 
-// `task_name.Env` overrides `task_name.DotEnv`
+// `task_name.DotEnv` overrides `task_name.Env`
 func TestEnvInheritance(t *testing.T) {
-	expected := "baz2"
+	expected := "baz"
 	config := Config{
 		Tasks: map[string]Task{
 			"default": {
 				// examples/.env sets BAR=baz
 				DotEnv: ".env",
-				Env:    map[string]string{"BAR": expected},
+				Env:    map[string]string{"BAR": "baz2"},
 				Cmds:   []string{"echo $BAR"},
 			},
 		},

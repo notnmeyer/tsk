@@ -2,6 +2,8 @@ package task
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
+	// "path/filepath"
 	"sort"
 )
 
@@ -20,4 +22,22 @@ func ConvertEnvToStringSlice(env map[string]string) []string {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}
 	return envs
+}
+
+func readDotEnv(filename string) (map[string]string, error) {
+	dotEnv, err := godotenv.Read(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	return dotEnv, nil
+}
+
+func appendDotEnvToEnv(env []string, dotenv string) ([]string, error) {
+	additionalEnv, err := readDotEnv(dotenv)
+	if err != nil {
+		return nil, err
+	}
+	env = append(env, ConvertEnvToStringSlice(additionalEnv)...)
+	return env, nil
 }
