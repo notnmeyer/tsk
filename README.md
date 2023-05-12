@@ -70,7 +70,8 @@ try `tsk --file examples/tasks.toml no_cmd` to see this in action.
 ### environment variables
 tsk loads environment variables and merges them with the precendence listed below. items earlier in the list are overriden by items lower in the list.
 
-1. the parent process, e.g., `MY_VAR=hey tsk ...`
 1. the top-level `env` key
-1. `tasks.<task_name>.dotenv`
+1. the top-level `dotenv` key
 1. `tasks.<task_name>.env`
+1. the parent process, e.g., `MY_VAR=hey tsk ...`
+1. `tasks.<task_name>.dotenv`

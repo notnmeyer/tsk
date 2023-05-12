@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/BurntSushi/toml"
-	"github.com/joho/godotenv"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
 	"mvdan.cc/sh/v3/syntax"
@@ -19,6 +18,7 @@ import (
 
 // represents parsed task file
 type Config struct {
+	DotEnv      string
 	Env         map[string]string
 	Tasks       map[string]Task
 	ScriptDir   string
@@ -41,12 +41,42 @@ type Executor struct {
 	Config *Config
 }
 
-func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
-	// inherit the parent env
-	env := os.Environ()
+// sets the top-level env
+func (c *Config) CompileEnv() ([]string, error) {
+	env := ConvertEnvToStringSlice(c.Env)
 
-	// append top-level env
-	env = append(env, ConvertEnvToStringSlice(config.Env)...)
+	if c.DotEnv != "" {
+		var err error
+		env, err = appendDotEnvToEnv(env, filepath.Join(c.TaskFileDir, c.DotEnv))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return env, nil
+}
+
+func (t *Task) CompileEnv(env []string) ([]string, error) {
+	env = append(env, ConvertEnvToStringSlice(t.Env)...)
+	env = append(env, os.Environ()...)
+
+	if t.DotEnv != "" {
+		var err error
+		env, err = appendDotEnvToEnv(env, filepath.Join(t.Dir, t.DotEnv))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return env, nil
+}
+
+func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
+	// top-level env
+	env, err := config.CompileEnv()
+	if err != nil {
+		return err
+	}
 
 	for _, task := range *tasks {
 		taskConfig := config.Tasks[task]
@@ -54,19 +84,6 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 		if taskConfig.Dir == "" {
 			taskConfig.Dir = config.TaskFileDir
 		}
-
-		// append dotenv
-		if taskConfig.DotEnv != "" {
-			dotEnv, err := godotenv.Read(filepath.Join(taskConfig.Dir, taskConfig.DotEnv))
-			if err != nil {
-				return err
-			}
-
-			env = append(env, ConvertEnvToStringSlice(dotEnv)...)
-		}
-
-		// append env
-		env = append(env, ConvertEnvToStringSlice(taskConfig.Env)...)
 
 		if len(taskConfig.Deps) > 0 {
 			for _, depGroup := range taskConfig.Deps {
@@ -80,6 +97,12 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 				}
 				wg.Wait()
 			}
+		}
+
+		// add any task-specific env bits
+		env, err = taskConfig.CompileEnv(env)
+		if err != nil {
+			return err
 		}
 
 		// if a task contains cmds, run them
