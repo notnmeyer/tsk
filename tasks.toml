@@ -1,6 +1,6 @@
 [tasks.build]
 cmds = [
-  "goreleaser build --single-target --snapshot --clean --output bin/tsk"
+  "go build -o bin/tsk -v cmd/tsk/*.go"
 ]
 
 [tasks.clean]
