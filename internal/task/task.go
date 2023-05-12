@@ -100,7 +100,10 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 		}
 
 		// add any task-specific env bits
-		env, _ = taskConfig.CompileEnv(env)
+		env, err = taskConfig.CompileEnv(env)
+		if err != nil {
+			return err
+		}
 
 		// if a task contains cmds, run them
 		if len(taskConfig.Cmds) > 0 {
