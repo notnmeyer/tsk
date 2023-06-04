@@ -32,6 +32,7 @@ type Task struct {
 	Dir    string
 	Env    map[string]string
 	DotEnv string
+	Pure   bool
 }
 
 type Executor struct {
@@ -58,7 +59,18 @@ func (c *Config) CompileEnv() ([]string, error) {
 
 func (t *Task) CompileEnv(env []string) ([]string, error) {
 	env = append(env, ConvertEnvToStringSlice(t.Env)...)
-	env = append(env, os.Environ()...)
+
+	// a "pure" environment does not inherit the full parent env, but does inherit
+	// USER and HOME. otherwise it inherits the entire parent env.
+	if t.Pure {
+		env = append(
+			env,
+			fmt.Sprintf("USER=%s", os.Getenv("USER")),
+			fmt.Sprintf("HOME=%s", os.Getenv("HOME")),
+		)
+	} else {
+		env = append(env, os.Environ()...)
+	}
 
 	if t.DotEnv != "" {
 		var err error
