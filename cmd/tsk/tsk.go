@@ -12,15 +12,17 @@ var version, commit string
 
 func main() {
 	var (
-		listTasks      bool
-		taskFile       string
-		tasks          []string
-		displayVersion bool
+		displayVersion     bool
+		listTasks          bool
+		noInheritParentEnv bool
+		taskFile           string
+		tasks              []string
 	)
 
-	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
-	flag.StringVarP(&taskFile, "file", "f", "", "taskfile to use")
 	flag.BoolVarP(&displayVersion, "version", "V", false, "display tsk version")
+	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
+	flag.BoolVarP(&noInheritParentEnv, "pure", "", false, "don't inherit the parent env")
+	flag.StringVarP(&taskFile, "file", "f", "", "taskfile to use")
 	flag.Parse()
 	tasks = flag.Args()
 
@@ -45,6 +47,13 @@ func main() {
 	if listTasks {
 		exec.ListTasksFromTaskFile(exec.Config)
 		return
+	}
+
+	if noInheritParentEnv {
+		for name, task := range exec.Config.Tasks {
+			task.Pure = true
+			exec.Config.Tasks[name] = task
+		}
 	}
 
 	// verify the tasks at the cli exist

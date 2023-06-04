@@ -75,3 +75,7 @@ tsk loads environment variables and merges them with the precendence listed belo
 1. `tasks.<task_name>.env`
 1. the parent process, e.g., `MY_VAR=hey tsk ...`
 1. `tasks.<task_name>.dotenv`
+
+#### "pure" tasks
+
+setting `pure = true` on a task will prevent the parent process's environment from being inherited. Similarly, the CLI argument `--pure` will prevent _any_ task from inheriting the parent's env. the only exceptions are `$USER` and `$HOME`, which are always inherited.
