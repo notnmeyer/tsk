@@ -1,5 +1,5 @@
 # tsk
-a simple task runner.
+a simple task runner. supports TOML 1.1.0!
 
 ```
 $ cat tasks.toml

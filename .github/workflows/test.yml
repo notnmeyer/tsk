@@ -11,4 +11,6 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: 1.19
-      - run: go test ./...
+      - env:
+          BURNTSUSHI_TOML_110: ""
+        run: go test ./...
