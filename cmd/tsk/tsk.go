@@ -11,7 +11,7 @@ import (
 var version, commit string
 
 func init() {
-	// TOML 1.1 features are behind a flag until offivcially released
+	// TOML 1.1 features are behind a flag until officially released
 	os.Setenv("BURNTSUSHI_TOML_110", "")
 }
 
