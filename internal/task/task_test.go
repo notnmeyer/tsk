@@ -175,14 +175,16 @@ func TestFindTaskFile(t *testing.T) {
 // test .env file is loaded
 func TestDotEnv(t *testing.T) {
 	var taskFile string
-	config, _ := NewTaskConfig(taskFile)
-
+	config, err := NewTaskConfig(taskFile)
+	if err != nil {
+		panic(err)
+	}
 	out := new(bytes.Buffer)
 	exec := Executor{
 		Stdout: out,
 	}
 
-	err := exec.RunTasks(config, &[]string{"dotenv"})
+	err = exec.RunTasks(config, &[]string{"dotenv"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
