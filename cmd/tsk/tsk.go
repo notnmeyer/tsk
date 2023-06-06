@@ -10,9 +10,12 @@ import (
 
 var version, commit string
 
-func main() {
+func init() {
+	// TOML 1.1 features are behind a flag until offivcially released
 	os.Setenv("BURNTSUSHI_TOML_110", "")
+}
 
+func main() {
 	var (
 		displayVersion bool
 		listTasks      bool
