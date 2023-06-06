@@ -11,6 +11,8 @@ import (
 var version, commit string
 
 func main() {
+	os.Setenv("BURNTSUSHI_TOML_110", "")
+
 	var (
 		displayVersion bool
 		listTasks      bool
