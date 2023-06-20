@@ -10,6 +10,7 @@ cmds = [
 
 [tasks.release]
 dotenv = ".env"
+deps = [["test"]]
 
 [tasks.release_dry]
 dotenv = ".env"

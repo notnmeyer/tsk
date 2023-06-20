@@ -83,6 +83,44 @@ func (t *Task) CompileEnv(env []string) ([]string, error) {
 	return env, nil
 }
 
+// format a task as a string from printing
+func (t *Task) Format(taskName, scriptDir string) string {
+	out := ""
+
+	// deps
+	if len(t.Deps) > 0 {
+		out += fmt.Sprintf("%sdeps:\n", indent(2))
+		for _, depGroup := range t.Deps {
+			out += fmt.Sprintf("%s%s\n", indent(4), depGroup)
+		}
+	}
+
+	// task-level env
+	if len(t.Env) > 0 {
+		out += fmt.Sprintf("%senv:\n", indent(2))
+		for env, _ := range t.Env {
+			out += fmt.Sprintf("%s\"%s\"\n", indent(4), env)
+		}
+	}
+
+	// task-level dotenv
+	if t.DotEnv != "" {
+		out += fmt.Sprintf("%sdotenv: %s\n", indent(2), t.DotEnv)
+	}
+
+	// cmds
+	if len(t.Cmds) > 0 {
+		out += fmt.Sprintf("%scmds:\n", indent(2))
+		for _, cmd := range t.Cmds {
+			out += fmt.Sprintf("%s\"%s\"\n", indent(4), cmd)
+		}
+	} else {
+		out += fmt.Sprintf("%sscript: %s/%s.sh\n\n", indent(2), scriptDir, taskName)
+	}
+
+	return out + "\n"
+}
+
 func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 	// top-level env
 	env, err := config.CompileEnv()
@@ -163,30 +201,16 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 }
 
 func (exec *Executor) ListTasksFromTaskFile(config *Config) {
-	indent := "  "
-
 	alphaTaskList := alphabetizeTaskList(&config.Tasks)
 	for _, task := range *alphaTaskList {
+		var (
+			out string
+			t   Task = config.Tasks[task]
+		)
+
 		fmt.Printf("[%s]\n", task)
-
-		if len(config.Tasks[task].Deps) > 0 {
-			out := "\n"
-			for _, depGroup := range config.Tasks[task].Deps {
-				out += fmt.Sprintf("%s%s\n", indent+indent, depGroup)
-			}
-			fmt.Printf("%sdeps: %s", indent, out)
-		}
-
-		if len(config.Tasks[task].Cmds) > 0 {
-			out := "\n"
-			for _, cmd := range config.Tasks[task].Cmds {
-				out += fmt.Sprintf("%s\"%s\"\n", indent+indent, cmd)
-			}
-			fmt.Printf("%scmds: %s\n", indent, out)
-		} else {
-			out := fmt.Sprintf("script: %s/%s.sh\n\n", exec.Config.ScriptDir, task)
-			fmt.Printf("%s%s", indent, out)
-		}
+		out += t.Format(task, exec.Config.ScriptDir)
+		fmt.Print(out)
 	}
 }
 

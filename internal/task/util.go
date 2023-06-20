@@ -5,6 +5,7 @@ import (
 	"github.com/joho/godotenv"
 	// "path/filepath"
 	"sort"
+	"strings"
 )
 
 func alphabetizeTaskList(t *map[string]Task) *[]string {
@@ -40,4 +41,8 @@ func appendDotEnvToEnv(env []string, dotenv string) ([]string, error) {
 	}
 	env = append(env, ConvertEnvToStringSlice(additionalEnv)...)
 	return env, nil
+}
+
+func indent(count int) string {
+	return strings.Repeat(" ", count)
 }
