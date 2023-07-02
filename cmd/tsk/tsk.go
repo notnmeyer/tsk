@@ -30,7 +30,7 @@ func main() {
 	flag.StringVarP(&filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
 	flag.BoolVarP(&pure, "pure", "", false, "don't inherit the parent env")
-	flag.StringVarP(&taskFile, "file", "f", "", "taskfile to use")
+	flag.StringVarP(&taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
 	tasks = flag.Args()
 
