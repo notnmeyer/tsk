@@ -164,15 +164,18 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 }
 
 func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
-	filteredTasks := make(map[string]Task)
+	tasks := filterTasks(&exec.Config.Tasks, regex)
+	toml.NewEncoder(os.Stdout).Encode(tasks)
+}
 
-	for k, v := range exec.Config.Tasks {
+func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
+	filtered := make(map[string]Task)
+	for k, v := range *tasks {
 		if regex.MatchString(k) {
-			filteredTasks[k] = v
+			filtered[k] = v
 		}
 	}
-
-	toml.NewEncoder(os.Stdout).Encode(filteredTasks)
+	return filtered
 }
 
 func NewTaskConfig(taskFile string) (*Config, error) {
