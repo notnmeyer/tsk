@@ -27,7 +27,7 @@ func main() {
 	)
 
 	flag.BoolVarP(&displayVersion, "version", "V", false, "display tsk version")
-	flag.StringVarP(&filter, "filter", "", ".*", "regex filter for --list")
+	flag.StringVarP(&filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
 	flag.BoolVarP(&pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&taskFile, "file", "f", "", "taskfile to use")
