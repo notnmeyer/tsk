@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -162,8 +163,16 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 	return nil
 }
 
-func (exec *Executor) ListTasksFromTaskFile(config *Config) {
-	toml.NewEncoder(os.Stdout).Encode(config.Tasks)
+func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
+	filteredTasks := make(map[string]Task)
+
+	for k, v := range exec.Config.Tasks {
+		if regex.MatchString(k) {
+			filteredTasks[k] = v
+		}
+	}
+
+	toml.NewEncoder(os.Stdout).Encode(filteredTasks)
 }
 
 func NewTaskConfig(taskFile string) (*Config, error) {
