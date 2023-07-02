@@ -163,31 +163,7 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 }
 
 func (exec *Executor) ListTasksFromTaskFile(config *Config) {
-	indent := "  "
-
-	alphaTaskList := alphabetizeTaskList(&config.Tasks)
-	for _, task := range *alphaTaskList {
-		fmt.Printf("[%s]\n", task)
-
-		if len(config.Tasks[task].Deps) > 0 {
-			out := "\n"
-			for _, depGroup := range config.Tasks[task].Deps {
-				out += fmt.Sprintf("%s%s\n", indent+indent, depGroup)
-			}
-			fmt.Printf("%sdeps: %s", indent, out)
-		}
-
-		if len(config.Tasks[task].Cmds) > 0 {
-			out := "\n"
-			for _, cmd := range config.Tasks[task].Cmds {
-				out += fmt.Sprintf("%s\"%s\"\n", indent+indent, cmd)
-			}
-			fmt.Printf("%scmds: %s\n", indent, out)
-		} else {
-			out := fmt.Sprintf("script: %s/%s.sh\n\n", exec.Config.ScriptDir, task)
-			fmt.Printf("%s%s", indent, out)
-		}
-	}
+	toml.NewEncoder(os.Stdout).Encode(config.Tasks)
 }
 
 func NewTaskConfig(taskFile string) (*Config, error) {
