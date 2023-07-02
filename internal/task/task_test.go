@@ -273,3 +273,23 @@ func TestGlobalEnvInheritance(t *testing.T) {
 		t.Errorf("Expected '%s', got %s", expected, out.String())
 	}
 }
+
+func TestFilterTasks(t *testing.T) {
+	var (
+		tasks = map[string]Task{
+			"foo": {},
+			"bar": {},
+		}
+		expectedKey = "foo"
+		re          = regexp.MustCompile(expectedKey)
+		result      = filterTasks(&tasks, re)
+	)
+
+	if len(result) != 1 {
+		t.Errorf("Expected `len(res) == 1`, got %d", len(result))
+	}
+
+	if _, ok := result[expectedKey]; !ok {
+		t.Errorf("Expected key %s to exist", expectedKey)
+	}
+}

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"regexp"
 
 	"github.com/notnmeyer/tsk/internal/task"
 	flag "github.com/spf13/pflag"
@@ -18,6 +19,7 @@ func init() {
 func main() {
 	var (
 		displayVersion bool
+		filter         string
 		listTasks      bool
 		pure           bool
 		taskFile       string
@@ -25,9 +27,10 @@ func main() {
 	)
 
 	flag.BoolVarP(&displayVersion, "version", "V", false, "display tsk version")
+	flag.StringVarP(&filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
 	flag.BoolVarP(&pure, "pure", "", false, "don't inherit the parent env")
-	flag.StringVarP(&taskFile, "file", "f", "", "taskfile to use")
+	flag.StringVarP(&taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
 	tasks = flag.Args()
 
@@ -50,7 +53,7 @@ func main() {
 	}
 
 	if listTasks {
-		exec.ListTasksFromTaskFile(exec.Config)
+		exec.ListTasksFromTaskFile(regexp.MustCompile(filter))
 		return
 	}
 
