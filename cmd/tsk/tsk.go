@@ -11,36 +11,37 @@ import (
 
 var version, commit string
 
+type Options struct {
+	displayVersion bool
+	filter         string
+	listTasks      bool
+	pure           bool
+	taskFile       string
+	tasks          []string
+}
+
 func init() {
 	// TOML 1.1 features are behind a flag until officially released
 	os.Setenv("BURNTSUSHI_TOML_110", "")
 }
 
 func main() {
-	var (
-		displayVersion bool
-		filter         string
-		listTasks      bool
-		pure           bool
-		taskFile       string
-		tasks          []string
-	)
-
-	flag.BoolVarP(&displayVersion, "version", "V", false, "display tsk version")
-	flag.StringVarP(&filter, "filter", "F", ".*", "regex filter for --list")
-	flag.BoolVarP(&listTasks, "list", "l", false, "list tasks")
-	flag.BoolVarP(&pure, "pure", "", false, "don't inherit the parent env")
-	flag.StringVarP(&taskFile, "file", "f", "tasks.toml", "taskfile to use")
+	opts := Options{}
+	flag.BoolVarP(&opts.displayVersion, "version", "V", false, "display tsk version")
+	flag.StringVarP(&opts.filter, "filter", "F", ".*", "regex filter for --list")
+	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
+	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
+	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
-	tasks = flag.Args()
+	opts.tasks = flag.Args()
 
-	if displayVersion {
+	if opts.displayVersion {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
 		return
 	}
 
 	// cfg is the parsed task file
-	cfg, err := task.NewTaskConfig(taskFile)
+	cfg, err := task.NewTaskConfig(opts.taskFile)
 	if err != nil {
 		panic(err)
 	}
@@ -52,12 +53,12 @@ func main() {
 		Config: cfg,
 	}
 
-	if listTasks {
-		exec.ListTasksFromTaskFile(regexp.MustCompile(filter))
+	if opts.listTasks {
+		exec.ListTasksFromTaskFile(regexp.MustCompile(opts.filter))
 		return
 	}
 
-	if pure {
+	if opts.pure {
 		for name, task := range exec.Config.Tasks {
 			task.Pure = true
 			exec.Config.Tasks[name] = task
@@ -65,12 +66,12 @@ func main() {
 	}
 
 	// verify the tasks at the cli exist
-	if err := verifyTasks(exec.Config, tasks); err != nil {
+	if err := verifyTasks(exec.Config, opts.tasks); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
-	if err := exec.RunTasks(exec.Config, &tasks); err != nil {
+	if err := exec.RunTasks(exec.Config, &opts.tasks); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
