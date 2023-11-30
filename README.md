@@ -1,5 +1,9 @@
-# tsk
-a simple task runner. supports TOML 1.1.0!
+<p align="center">
+  <img src="https://github.com/notnmeyer/tsk/assets/672246/bb8c8c55-756a-4eb0-be9f-9697267bb012" width="20%" />
+  <p align="center"><b>tsk</b>: a simple task runner. supports TOML 1.1.0!</p>
+</p>
+
+## example
 
 ```
 $ cat tasks.toml
