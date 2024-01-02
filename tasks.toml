@@ -18,7 +18,7 @@ cmds = [
 ]
 
 [tasks.test]
-cmds = ["go test ./..."]
+cmds = ["go test ./... {{.CLI_ARGS}}"]
 
 [tasks.deps]
 cmds = ["go mod tidy"]
