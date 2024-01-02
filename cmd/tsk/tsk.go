@@ -14,6 +14,7 @@ var version, commit string
 type Options struct {
 	displayVersion bool
 	filter         string
+	init           bool
 	listTasks      bool
 	pure           bool
 	taskFile       string
@@ -30,6 +31,7 @@ func main() {
 	flag.BoolVarP(&opts.displayVersion, "version", "V", false, "display tsk version")
 	flag.StringVarP(&opts.filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
+	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file")
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
