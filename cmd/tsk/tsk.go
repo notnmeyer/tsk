@@ -33,7 +33,13 @@ func main() {
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
-	opts.tasks = flag.Args()
+
+	if flag.CommandLine.ArgsLenAtDash() > 0 {
+		// exclude any arguments after after "--". these aren't task names
+		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
+	} else {
+		opts.tasks = flag.Args()
+	}
 
 	if opts.displayVersion {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)

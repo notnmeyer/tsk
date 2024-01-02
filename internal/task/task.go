@@ -188,9 +188,15 @@ func NewTaskConfig(taskFile string) (*Config, error) {
 		}
 	}
 
+	// render the task file as a template
+	rendered, err := render(taskFile)
+	if err != nil {
+		return nil, err
+	}
+
 	// parse the task file
 	var config Config
-	if _, err := toml.DecodeFile(taskFile, &config); err != nil {
+	if _, err := toml.Decode(rendered.String(), &config); err != nil {
 		return nil, err
 	}
 

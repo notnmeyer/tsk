@@ -1,10 +1,14 @@
 package task
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/joho/godotenv"
-	// "path/filepath"
+	"os"
 	"sort"
+	"strings"
+	"text/template"
+
+	"github.com/joho/godotenv"
 )
 
 func alphabetizeTaskList(t *map[string]Task) *[]string {
@@ -40,4 +44,38 @@ func appendDotEnvToEnv(env []string, dotenv string) ([]string, error) {
 	}
 	env = append(env, ConvertEnvToStringSlice(additionalEnv)...)
 	return env, nil
+}
+
+func render(file string) (*bytes.Buffer, error) {
+	tmpl, err := template.ParseFiles(file)
+	if err != nil {
+		return nil, err
+	}
+
+	var renderedBuffer bytes.Buffer
+
+	// TODO: how and where template values come from
+	vals := make(map[string]string)
+
+	var cliArgs []string
+	if FindIndex(os.Args) > 0 {
+		cliArgs = os.Args[FindIndex(os.Args)+1:]
+	}
+
+	vals["CLI_ARGS"] = strings.Join(cliArgs, " ")
+
+	if err := tmpl.Execute(&renderedBuffer, vals); err != nil {
+		return nil, err
+	}
+
+	return &renderedBuffer, nil
+}
+
+func FindIndex(args []string) int {
+	for i, arg := range args {
+		if arg == "--" {
+			return i
+		}
+	}
+	return -1
 }
