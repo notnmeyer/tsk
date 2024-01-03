@@ -28,7 +28,7 @@ func main() {
 	flag.BoolVarP(&opts.displayVersion, "version", "V", false, "display tsk version")
 	flag.StringVarP(&opts.filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
-	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file")
+	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file in $PWD")
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
@@ -45,6 +45,14 @@ func main() {
 	if opts.displayVersion {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
 		return
+	}
+
+	if opts.init {
+		if err := task.InitTaskfile(); err != nil {
+			fmt.Printf("couldn't init: %s\n", err.Error())
+			os.Exit(1)
+		}
+		fmt.Printf("created tasks.toml!\n")
 	}
 
 	// cfg is the parsed task file
