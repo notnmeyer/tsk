@@ -47,10 +47,6 @@ builds:
         -s -w
         -X "main.version={{.Version}}"
         -X "main.commit={{.Commit}}"
-    hooks:
-      post:
-        - cmd: gon gon-{{.Arch}}.hcl
-          output: true
 
 archives:
   - builds:
