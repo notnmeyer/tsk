@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/notnmeyer/tsk/internal/task"
 	flag "github.com/spf13/pflag"
@@ -12,6 +13,7 @@ import (
 var version, commit string
 
 type Options struct {
+	cliArgs        string
 	displayVersion bool
 	filter         string
 	listTasks      bool
@@ -33,7 +35,15 @@ func main() {
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
-	opts.tasks = flag.Args()
+
+	if flag.CommandLine.ArgsLenAtDash() > 0 {
+		// args before "--" are tasks to run
+		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
+		// args after "--" are optionally templated into the taskfile
+		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
+	} else {
+		opts.tasks = flag.Args()
+	}
 
 	if opts.displayVersion {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
@@ -41,7 +51,7 @@ func main() {
 	}
 
 	// cfg is the parsed task file
-	cfg, err := task.NewTaskConfig(opts.taskFile)
+	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs)
 	if err != nil {
 		panic(err)
 	}

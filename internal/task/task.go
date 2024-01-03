@@ -178,7 +178,7 @@ func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
 	return filtered
 }
 
-func NewTaskConfig(taskFile string) (*Config, error) {
+func NewTaskConfig(taskFile, cliArgs string) (*Config, error) {
 	var err error
 	if taskFile == "" {
 		dir, _ := os.Getwd()
@@ -188,9 +188,15 @@ func NewTaskConfig(taskFile string) (*Config, error) {
 		}
 	}
 
+	// render the task file as a template
+	rendered, err := render(taskFile, cliArgs)
+	if err != nil {
+		return nil, err
+	}
+
 	// parse the task file
 	var config Config
-	if _, err := toml.DecodeFile(taskFile, &config); err != nil {
+	if _, err := toml.Decode(rendered.String(), &config); err != nil {
 		return nil, err
 	}
 
