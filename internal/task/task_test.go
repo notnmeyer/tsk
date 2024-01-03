@@ -174,8 +174,9 @@ func TestFindTaskFile(t *testing.T) {
 
 // test .env file is loaded
 func TestDotEnv(t *testing.T) {
-	var taskFile string
-	config, err := NewTaskConfig(taskFile)
+	var taskFile, cliArgs string
+
+	config, err := NewTaskConfig(taskFile, cliArgs)
 	if err != nil {
 		panic(err)
 	}
@@ -291,5 +292,23 @@ func TestFilterTasks(t *testing.T) {
 
 	if _, ok := result[expectedKey]; !ok {
 		t.Errorf("Expected key %s to exist", expectedKey)
+	}
+}
+
+// CLI_ARGS template
+func TestTemplates(t *testing.T) {
+	cliArgs := "foobar"
+	expected := regexp.MustCompile(cliArgs)
+	wd, _ := os.Getwd()
+	path, _ := findTaskFile(wd, "tasks.toml")
+	config, _ := NewTaskConfig(path, cliArgs)
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	exec.RunTasks(config, &[]string{"template"})
+	if !expected.Match(out.Bytes()) {
+		t.Errorf("Expected '%s' to match '%s'", cliArgs, out.String())
 	}
 }

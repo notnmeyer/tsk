@@ -4,13 +4,6 @@ before:
 
 release:
   prerelease: auto
-  extra_files:
-    - glob: ./dist/tsk_macos_arm64.zip
-      name_template: >-
-        {{ .ProjectName }}_v{{ .Version }}_Macos_arm64.zip
-    - glob: ./dist/tsk_macos_amd64.zip
-      name_template: >-
-        {{ .ProjectName }}_v{{ .Version }}_Macos_x86_64.zip
 
 builds:
   - binary: tsk
@@ -49,12 +42,13 @@ builds:
         -X "main.commit={{.Commit}}"
     hooks:
       post:
-        - cmd: gon gon-{{.Arch}}.hcl
+        - cmd: codesign -s {{ .Env.CODESIGN_IDENTITY }} {{ .Path }}
           output: true
 
 archives:
   - builds:
       - linux
+      - macos
     name_template: >-
       {{ .ProjectName }}_v{{ .Version }}_
       {{- title .Os }}_
@@ -65,13 +59,6 @@ archives:
 
 checksum:
   name_template: checksums.txt
-  extra_files:
-    - glob: dist/tsk_macos_arm64.zip
-      name_template: >-
-        {{ .ProjectName }}_v{{ .Version }}_Macos_arm64.zip
-    - glob: dist/tsk_macos_amd64.zip
-      name_template: >-
-        {{ .ProjectName }}_v{{ .Version }}_Macos_x86_64.zip
 
 snapshot:
   name_template: "{{ incpatch .Version }}-next"

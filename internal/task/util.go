@@ -1,11 +1,17 @@
 package task
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/joho/godotenv"
-	// "path/filepath"
 	"sort"
+	"text/template"
+
+	"github.com/joho/godotenv"
 )
+
+type Vals struct {
+	CLI_ARGS string
+}
 
 func alphabetizeTaskList(t *map[string]Task) *[]string {
 	var taskNames []string
@@ -40,4 +46,18 @@ func appendDotEnvToEnv(env []string, dotenv string) ([]string, error) {
 	}
 	env = append(env, ConvertEnvToStringSlice(additionalEnv)...)
 	return env, nil
+}
+
+func render(file, cliArgs string) (*bytes.Buffer, error) {
+	tmpl, err := template.ParseFiles(file)
+	if err != nil {
+		return nil, err
+	}
+
+	var renderedBuffer bytes.Buffer
+	if err := tmpl.Execute(&renderedBuffer, &Vals{CLI_ARGS: cliArgs}); err != nil {
+		return nil, err
+	}
+
+	return &renderedBuffer, nil
 }

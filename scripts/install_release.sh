@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 set -eux
 
+version="${version:-SPECIFY-A-VERSION}"
+platform="${platform:-Darwin}"
+arch="${arch:-arm64}"
+
 tmp_dir=$(mktemp -d)
 install_dir="${HOME}/bin"
-archive_name="tsk_v${version}_${platform}_${arch}.zip"
+archive_name="tsk_v${version}_${platform}_${arch}.tar.gz"
 
-curl -L -o "${tmp_dir}/${archive_name}" \
+curl -sL -o "${tmp_dir}/${archive_name}" \
   "https://github.com/notnmeyer/tsk/releases/download/v${version}/${archive_name}"
 
-unzip "${tmp_dir}/${archive_name}" -d "$tmp_dir"
+cd "$tmp_dir"
+tar xzf "$archive_name"
 
-cp "${tmp_dir}/tsk" "${install_dir}/"
+cp "tsk" "${install_dir}/"
+rm -rf "$tmp_dir"

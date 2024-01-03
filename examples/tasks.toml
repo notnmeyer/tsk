@@ -65,6 +65,11 @@ cmds = [
   'echo "$BLAH"'
 ]
 
+[tasks.template]
+cmds = [
+  "echo {{.CLI_ARGS}}"
+]
+
 # tasks used to demonstrate features above
 [tasks.setup1]
 cmds = ["sleep 1", "echo 'doing setup1...'"]

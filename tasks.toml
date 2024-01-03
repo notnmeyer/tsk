@@ -18,13 +18,13 @@ cmds = [
 ]
 
 [tasks.test]
-cmds = ["go test ./..."]
+cmds = ["go test ./... {{.CLI_ARGS}}"]
 
 [tasks.deps]
 cmds = ["go mod tidy"]
 
 [tasks.install_release]
-env = { version = "0.3.0", platform = "Macos", arch = "arm64" }
+# see scripts/install_release.sh for configurable env arguments
 
 [tasks.sign]
 dotenv = ".env"
