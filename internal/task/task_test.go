@@ -293,3 +293,21 @@ func TestFilterTasks(t *testing.T) {
 		t.Errorf("Expected key %s to exist", expectedKey)
 	}
 }
+
+// templating of .CLI_ARGS
+func TestTemplates(t *testing.T) {
+	// this doesnt work. maybe we should parse the extra args into the config struct initially?
+	os.Args = append(os.Args, "-- foobar")
+
+	wd, _ := os.Getwd()
+	path, _ := findTaskFile(wd, "tasks.toml")
+	config, _ := NewTaskConfig(path)
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+	exec.RunTasks(config, &[]string{"template"})
+	if out.String() != "foobar" {
+		t.Errorf("Expected '%s', got %s", "foobar", out.String())
+	}
+}
