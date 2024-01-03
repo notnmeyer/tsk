@@ -178,7 +178,7 @@ func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
 	return filtered
 }
 
-func NewTaskConfig(taskFile string) (*Config, error) {
+func NewTaskConfig(taskFile, cliArgs string) (*Config, error) {
 	var err error
 	if taskFile == "" {
 		dir, _ := os.Getwd()
@@ -189,7 +189,7 @@ func NewTaskConfig(taskFile string) (*Config, error) {
 	}
 
 	// render the task file as a template
-	rendered, err := render(taskFile)
+	rendered, err := render(taskFile, cliArgs)
 	if err != nil {
 		return nil, err
 	}

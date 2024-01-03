@@ -174,8 +174,11 @@ func TestFindTaskFile(t *testing.T) {
 
 // test .env file is loaded
 func TestDotEnv(t *testing.T) {
-	var taskFile string
-	config, err := NewTaskConfig(taskFile)
+	var (
+		taskFile string
+		cliArgs  string
+	)
+	config, err := NewTaskConfig(taskFile, cliArgs)
 	if err != nil {
 		panic(err)
 	}
@@ -294,20 +297,20 @@ func TestFilterTasks(t *testing.T) {
 	}
 }
 
-// templating of .CLI_ARGS
+// CLI_ARGS template
 func TestTemplates(t *testing.T) {
-	// this doesnt work. maybe we should parse the extra args into the config struct initially?
-	os.Args = append(os.Args, "-- foobar")
-
+	cliArgs := "foobar"
+	expected := regexp.MustCompile(cliArgs)
 	wd, _ := os.Getwd()
 	path, _ := findTaskFile(wd, "tasks.toml")
-	config, _ := NewTaskConfig(path)
+	config, _ := NewTaskConfig(path, cliArgs)
 	out := new(bytes.Buffer)
 	exec := Executor{
 		Stdout: out,
 	}
+
 	exec.RunTasks(config, &[]string{"template"})
-	if out.String() != "foobar" {
-		t.Errorf("Expected '%s', got %s", "foobar", out.String())
+	if !expected.Match(out.Bytes()) {
+		t.Errorf("Expected '%s' to match '%s'", cliArgs, out.String())
 	}
 }

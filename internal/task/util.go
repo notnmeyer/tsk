@@ -3,13 +3,15 @@ package task
 import (
 	"bytes"
 	"fmt"
-	"os"
 	"sort"
-	"strings"
 	"text/template"
 
 	"github.com/joho/godotenv"
 )
+
+type Vals struct {
+	CLI_ARGS string
+}
 
 func alphabetizeTaskList(t *map[string]Task) *[]string {
 	var taskNames []string
@@ -46,36 +48,16 @@ func appendDotEnvToEnv(env []string, dotenv string) ([]string, error) {
 	return env, nil
 }
 
-func render(file string) (*bytes.Buffer, error) {
+func render(file, cliArgs string) (*bytes.Buffer, error) {
 	tmpl, err := template.ParseFiles(file)
 	if err != nil {
 		return nil, err
 	}
 
 	var renderedBuffer bytes.Buffer
-
-	// TODO: how and where template values come from
-	vals := make(map[string]string)
-
-	var cliArgs []string
-	if FindIndex(os.Args) > 0 {
-		cliArgs = os.Args[FindIndex(os.Args)+1:]
-	}
-
-	vals["CLI_ARGS"] = strings.Join(cliArgs, " ")
-
-	if err := tmpl.Execute(&renderedBuffer, vals); err != nil {
+	if err := tmpl.Execute(&renderedBuffer, &Vals{CLI_ARGS: cliArgs}); err != nil {
 		return nil, err
 	}
 
 	return &renderedBuffer, nil
-}
-
-func FindIndex(args []string) int {
-	for i, arg := range args {
-		if arg == "--" {
-			return i
-		}
-	}
-	return -1
 }
