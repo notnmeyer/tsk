@@ -226,8 +226,7 @@ func findTaskFile(dir, taskFile string) (string, error) {
 }
 
 func InitTaskfile() error {
-	content := `
-[tasks.hello]
+	content := `[tasks.hello]
 cmds = ["echo hello!"]
 `
 
@@ -235,8 +234,7 @@ cmds = ["echo hello!"]
 	filePath := path.Join(cwd, "tasks.toml")
 
 	if _, err := os.Stat(filePath); err == nil {
-		// return fmt.Errorf("%s already exists", filePath)
-		return err
+		return fmt.Errorf("%s exists", filePath)
 	}
 
 	file, err := os.Create(filePath)

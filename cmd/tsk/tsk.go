@@ -33,13 +33,13 @@ func main() {
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
 
-	if flag.CommandLine.ArgsLenAtDash() > 0 {
-		// args before "--" are tasks to run
-		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
-		// args after "--" are optionally templated into the taskfile
-		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
-	} else {
-		opts.tasks = flag.Args()
+	if opts.init {
+		if err := task.InitTaskfile(); err != nil {
+			fmt.Printf("couldn't init: %s\n", err.Error())
+			os.Exit(1)
+		}
+		fmt.Printf("created tasks.toml!\n")
+		return
 	}
 
 	if opts.displayVersion {
@@ -47,12 +47,13 @@ func main() {
 		return
 	}
 
-	if opts.init {
-		if err := task.InitTaskfile(); err != nil {
-			fmt.Printf("couldn't init: %s\n", err.Error())
-			os.Exit(1)
-		}
-		fmt.Printf("created tasks.toml!\n")
+	if flag.CommandLine.ArgsLenAtDash() > 0 {
+		// args before "--" are tasks to run
+		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
+		// args after "--" are optionally templated into the taskfile
+		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
+	} else {
+		opts.tasks = flag.Args()
 	}
 
 	// cfg is the parsed task file
