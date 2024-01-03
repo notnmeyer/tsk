@@ -19,40 +19,15 @@ see `examples/tasks.toml` for complete usage and configuration reference.
 ## installation
 
 ### prebuilt binary
-1. head over to the [releases](https://github.com/notnmeyer/tsk/releases) and grab the URL for your desired release
-1. download it, `wget https://github.com/notnmeyer/tsk/releases/download/v0.1.0/tsk_v0.1.0_Darwin_arm64.tar.gz`
-1. extract it, `tar -xzf /tmp/tsk_v0.1.0_Darwin_arm64.tar.gz`
-1. move it to somewhere in your $PATH, `mv ./tsk ~/bin/`
 
-```
-➜ tsk --version
-tsk v0.1.0, git:46e7d24edc54d07b38c476b167a79a46c091160b
-```
+- grab a tar from the [releases](https://github.com/notnmeyer/tsk/releases) page or see the [install_release](./scripts/install_release.sh) script for a batteries-included installation.
+- if tsk is already installed anbd you're upgrading, `version=0.6.2 tsk install_release`.
 
 ### from source
-1. clone this repo
-1. install goreleaser
-1. tsk uses tsk as its task runner, so if you're bootstrapping, take a look in `tasks.toml` and run the build command manually. you should wind up with a binary at `./bin/tsk`. then you can use the binary to build itself going forward.
 
-### from source with nix
-
-```shell
-$ nix-shell
-...
-
-➜ go build -o bin/tsk -v cmd/tsk/*.go
-...
-
-➜ bin/tsk --help
-Usage of bin/tsk:
-  -f, --file string     taskfile to use (default "tasks.toml")
-  -F, --filter string   regex filter for --list (default ".*")
-  -l, --list            list tasks
-      --pure            don't inherit the parent env
-  -V, --version         display tsk version
-pflag: help requested
-```
-
+- **without tsk installed** `go build -o ./bin/tsk -v cmd/tsk/tsk.go`
+- **with tsk installed** `tsk build`
+ 
 ## features
 ### tasks.toml locations
 tsk will look for a `tasks.toml` file in the current directory, looking in parent directories if one isn't found.

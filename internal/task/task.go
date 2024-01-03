@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -222,4 +223,30 @@ func findTaskFile(dir, taskFile string) (string, error) {
 	}
 
 	return findTaskFile(parent, taskFile)
+}
+
+func InitTaskfile() error {
+	content := `[tasks.hello]
+cmds = ["echo hello!"]
+`
+
+	cwd, _ := os.Getwd()
+	filePath := path.Join(cwd, "tasks.toml")
+
+	if _, err := os.Stat(filePath); err == nil {
+		return fmt.Errorf("%s exists", filePath)
+	}
+
+	file, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	err = os.WriteFile(filePath, []byte(content), 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
