@@ -23,6 +23,11 @@ type Options struct {
 	tasks          []string
 }
 
+func init() {
+	// TOML 1.1 features are behind a flag until officially released
+	os.Setenv("BURNTSUSHI_TOML_110", "")
+}
+
 func main() {
 	opts := Options{}
 	flag.BoolVarP(&opts.displayVersion, "version", "V", false, "display tsk version")
