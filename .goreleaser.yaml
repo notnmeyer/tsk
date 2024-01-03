@@ -40,6 +40,10 @@ builds:
         -s -w
         -X "main.version={{.Version}}"
         -X "main.commit={{.Commit}}"
+    hooks:
+      post:
+        - cmd: codesign -s {{ .Env.CODESIGN_IDENTITY }} {{ .Path }}
+          output: true
 
 archives:
   - builds:
