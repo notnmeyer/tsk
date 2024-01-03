@@ -174,10 +174,8 @@ func TestFindTaskFile(t *testing.T) {
 
 // test .env file is loaded
 func TestDotEnv(t *testing.T) {
-	var (
-		taskFile string
-		cliArgs  string
-	)
+	var taskFile, cliArgs string
+
 	config, err := NewTaskConfig(taskFile, cliArgs)
 	if err != nil {
 		panic(err)
