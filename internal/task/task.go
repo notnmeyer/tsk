@@ -166,7 +166,33 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 
 func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
 	tasks := filterTasks(&exec.Config.Tasks, regex)
-	toml.NewEncoder(os.Stdout).Encode(tasks)
+	indent := "  "
+
+	for name, t := range tasks {
+		fmt.Printf("[%s]\n", name)
+
+		if len(t.Cmds) > 0 {
+			fmt.Printf("%sCmds = \"%v\"\n", indent, t.Cmds)
+		} else {
+			fmt.Printf("%s# will run `scripts/%s.sh`\n", indent, name)
+		}
+
+		if t.Dir != "" {
+			fmt.Printf("%sDir = \"%s\"\n", indent, t.Dir)
+		}
+
+		if t.DotEnv != "" {
+			fmt.Printf("%sDotEnv = \"%s\"\n", indent, t.DotEnv)
+		}
+
+		if t.Pure == true {
+			fmt.Printf("%sPure = %t\n", indent, t.Pure)
+		}
+
+		fmt.Println("")
+	}
+
+	// toml.NewEncoder(os.Stdout).Encode(tasks)
 }
 
 func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
