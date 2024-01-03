@@ -16,15 +16,11 @@ type Options struct {
 	cliArgs        string
 	displayVersion bool
 	filter         string
+	init           bool
 	listTasks      bool
 	pure           bool
 	taskFile       string
 	tasks          []string
-}
-
-func init() {
-	// TOML 1.1 features are behind a flag until officially released
-	os.Setenv("BURNTSUSHI_TOML_110", "")
 }
 
 func main() {
@@ -32,9 +28,24 @@ func main() {
 	flag.BoolVarP(&opts.displayVersion, "version", "V", false, "display tsk version")
 	flag.StringVarP(&opts.filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
+	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file in $PWD")
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.Parse()
+
+	if opts.init {
+		if err := task.InitTaskfile(); err != nil {
+			fmt.Printf("couldn't init: %s\n", err.Error())
+			os.Exit(1)
+		}
+		fmt.Printf("created tasks.toml!\n")
+		return
+	}
+
+	if opts.displayVersion {
+		fmt.Printf("tsk v%s, git:%s\n", version, commit)
+		return
+	}
 
 	if flag.CommandLine.ArgsLenAtDash() > 0 {
 		// args before "--" are tasks to run
@@ -43,11 +54,6 @@ func main() {
 		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
 	} else {
 		opts.tasks = flag.Args()
-	}
-
-	if opts.displayVersion {
-		fmt.Printf("tsk v%s, git:%s\n", version, commit)
-		return
 	}
 
 	// cfg is the parsed task file

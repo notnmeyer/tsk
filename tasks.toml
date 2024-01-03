@@ -1,3 +1,7 @@
+[tasks.run]
+cmds = [
+  "go run cmd/tsk/tsk.go {{.CLI_ARGS}}"
+]
 [tasks.build]
 cmds = [
   "go build -o bin/tsk -v cmd/tsk/*.go"
