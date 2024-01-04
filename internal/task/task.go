@@ -166,7 +166,39 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 
 func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
 	tasks := filterTasks(&exec.Config.Tasks, regex)
-	toml.NewEncoder(os.Stdout).Encode(tasks)
+
+	// gaaaah, i like the end result but i hate this
+	indent := "  "
+	for name, t := range tasks {
+		fmt.Printf("[%s]\n", name)
+
+		if len(t.Cmds) > 0 {
+			fmt.Printf("%sCmds = [\n", indent)
+			for _, cmd := range t.Cmds {
+				fmt.Printf("%s\"%s\",\n", indent+indent, cmd)
+			}
+			fmt.Printf("%s]\n", indent)
+		} else {
+			fmt.Printf("%s# will run `scripts/%s.sh`\n", indent, name)
+		}
+
+		if t.Dir != "" {
+			fmt.Printf("%sDir = \"%s\"\n", indent, t.Dir)
+		}
+
+		if t.DotEnv != "" {
+			fmt.Printf("%sDotEnv = \"%s\"\n", indent, t.DotEnv)
+		}
+
+		if t.Pure == true {
+			fmt.Printf("%sPure = %t\n", indent, t.Pure)
+		}
+
+		fmt.Println("")
+	}
+
+	// pure toml representation. simple but includes blank task attributes.
+	// toml.NewEncoder(os.Stdout).Encode(tasks)
 }
 
 func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {

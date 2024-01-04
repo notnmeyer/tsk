@@ -4,7 +4,7 @@ cmds = [
 ]
 [tasks.build]
 cmds = [
-  "go build -o bin/tsk -v cmd/tsk/*.go"
+  "go build -o bin/tsk -v cmd/tsk/tsk.go"
 ]
 
 [tasks.clean]
