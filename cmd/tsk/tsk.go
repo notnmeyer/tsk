@@ -52,10 +52,11 @@ func main() {
 		return
 	}
 
-	if flag.CommandLine.ArgsLenAtDash() > 0 {
-		// args before "--" are tasks to run
+	// check if there are args passed after "--".
+	//   - if "--" is not present ArgsLenAtDash() returns -1.
+	//   - dash position 0 would be invocations like, `tsk -l -- foo`
+	if flag.CommandLine.ArgsLenAtDash() >= 0 {
 		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
-		// args after "--" are optionally templated into the taskfile
 		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
 	} else {
 		opts.tasks = flag.Args()
