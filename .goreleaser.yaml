@@ -18,8 +18,8 @@ builds:
       - arm
       - arm64
     goarm:
-      - '6'
-      - '7'
+      - "6"
+      - "7"
     ldflags:
       - >-
         -s -w
@@ -67,15 +67,13 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 
 brews:
   - name: tsk
+    homepage: "https://github.com/notnmeyer/tsk"
+    description: "A simple task runner with TOML configuration."
     repository:
       owner: notnmeyer
       name: homebrew-tsk
-
-# modelines, feel free to remove those if you don't want/use them:
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
