@@ -74,6 +74,9 @@ brews:
   - name: tsk
     homepage: "https://github.com/notnmeyer/tsk"
     description: "A simple task runner with TOML configuration."
+    commit_author:
+      name: tsk-bot
+      email: 672246+notnmeyer@users.noreply.github.com
     repository:
       owner: notnmeyer
       name: homebrew-tsk
