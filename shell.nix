@@ -1,4 +1,4 @@
-{ pkgs ? import (fetchTarball "channel:nixos-23.05") {} }:
+{ pkgs ? import (fetchTarball "channel:nixos-unstable") {} }:
 
 pkgs.mkShell {
   packages = with pkgs; [
