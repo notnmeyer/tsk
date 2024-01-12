@@ -18,23 +18,30 @@ see `examples/tasks.toml` for complete usage and configuration reference.
 
 ## installation
 
-### prebuilt binary
+via [Homebrew](https://brew.sh):
 
-- grab a tar from the [releases](https://github.com/notnmeyer/tsk/releases) page or see the [install_release](./scripts/install_release.sh) script for a batteries-included installation.
-- if tsk is already installed anbd you're upgrading, `version=0.6.2 tsk install_release`.
+```
+brew tap notnmeyer/tsk
+brew install tsk
+```
+
+alternatively, you can install directly from [releases](https://github.com/notnmeyer/tsk/releases) page or see the [install_release](./scripts/install_release.sh) script.
 
 ### from source
 
 - **without tsk installed** `go build -o ./bin/tsk -v cmd/tsk/tsk.go`
 - **with tsk installed** `tsk build`
- 
+
 ## features
+
 ### tasks.toml locations
+
 tsk will look for a `tasks.toml` file in the current directory, looking in parent directories if one isn't found.
 
 you can specify a file in another location or with another name with the `--file` flag.
 
 ### dependencies and dependency groups
+
 tasks can depend on other tasks as dependencies via a task's `deps` key. dependencies are organized in groups represented in toml as nested arrays. dependency groups are executed in the order they are defined in the `deps` key, while tasks within a group are executed in parallel.
 
 ```
@@ -56,6 +63,7 @@ cmds = ["echo main"]
 ```
 
 ### let shell be shell
+
 writing shell in toml or yaml files sucks—you miss out of syntax highlighting, linting, and other tools like shellcheck.
 
 you may omit a task's `cmds` field, which instead runs a script with the same name as the task from the `scripts` directory relative to the location of your `tasks.toml` file.
@@ -65,6 +73,7 @@ if you need to write anything more complicated than one or two short commands in
 try `tsk --file examples/tasks.toml no_cmd` to see this in action.
 
 ### environment variables
+
 tsk loads environment variables and merges them with the precendence listed below. items earlier in the list are overriden by items lower in the list.
 
 1. the top-level `env` key
