@@ -1,6 +1,6 @@
 <p align="center">
   <img src="https://github.com/notnmeyer/tsk/assets/672246/bb8c8c55-756a-4eb0-be9f-9697267bb012" width="20%" />
-  <p align="center"><b>tsk</b>: a simple task runner. supports TOML 1.1.0!</p>
+  <p align="center"><b>tsk</b>: a simple task runner with TOML syntax</p>
 </p>
 
 ## example
@@ -85,3 +85,16 @@ tsk loads environment variables and merges them with the precendence listed belo
 #### "pure" tasks
 
 setting `pure = true` on a task will prevent the parent process's environment from being inherited. Similarly, the CLI argument `--pure` will prevent _any_ task from inheriting the parent's env. the only exceptions are `$USER` and `$HOME`, which are always inherited.
+
+### toml 1.1.0
+
+some [upcoming toml 1.1.0 features are supported](https://github.com/toml-lang/toml/blob/main/CHANGELOG.md#unreleased). of note, newlines and trailing commas are now allowed in inline tables:
+
+```toml
+[tasks.example]
+env = {
+  msg1 = "hello",
+  msg2 = "world",
+}
+cmds = ["echo $msg1 $msg2"]
+```
