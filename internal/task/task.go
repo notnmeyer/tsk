@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/BurntSushi/toml"
 	"mvdan.cc/sh/v3/expand"
@@ -148,7 +147,6 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 	r, err := interp.New(
 		interp.Params("-e"),
 		interp.Env(expand.ListEnviron(env...)),
-		interp.ExecHandler(interp.DefaultExecHandler(15*time.Second)),
 		interp.OpenHandler(interp.DefaultOpenHandler()),
 		interp.StdIO(exec.Stdin, exec.Stdout, exec.Stderr),
 		interp.Dir(dir),
