@@ -70,6 +70,11 @@ cmds = [
   "echo {{.CLI_ARGS}}"
 ]
 
+# if a dep or command fails tsk exits. in this example, "hello world" will _not_ be echoed.
+[tasks.fail_on_error]
+deps = [["exit"]]
+cmds = ["echo hello world"]
+
 # tasks used to demonstrate features above
 [tasks.setup1]
 cmds = ["sleep 1", "echo 'doing setup1...'"]
@@ -83,3 +88,6 @@ cmds = ["echo 'doing setup3...'"]
 [tasks.setup4]
 deps = [["setup2"]]
 cmds = ["echo 'doing setup4...'"]
+
+[tasks.exit]
+cmds = ["echo exiting 1...", "exit 1"]

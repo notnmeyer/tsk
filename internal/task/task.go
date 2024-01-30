@@ -123,7 +123,9 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			for _, cmd := range taskConfig.Cmds {
 				err := exec.runCommand(cmd, taskConfig.Dir, env)
 				if err != nil {
-					return err
+					fmt.Println(err.Error())
+					// if the cmd exited with an error, bail immediately
+					os.Exit(1)
 				}
 			}
 		} else {
@@ -131,7 +133,9 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			script := fmt.Sprintf("%s/%s.sh", exec.Config.ScriptDir, task)
 			err := exec.runCommand(script, taskConfig.Dir, env)
 			if err != nil {
-				return err
+				fmt.Println(err.Error())
+				// if the cmd exited with an error, bail immediately
+				os.Exit(1)
 			}
 		}
 	}
