@@ -93,10 +93,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := exec.RunTasks(exec.Config, &opts.tasks); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	exec.RunTasks(exec.Config, &opts.tasks)
 }
 
 // verifies the tasks provided at the command line exist
