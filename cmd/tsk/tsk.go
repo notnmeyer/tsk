@@ -10,7 +10,10 @@ import (
 	flag "github.com/spf13/pflag"
 )
 
-var version, commit string
+var (
+	version, commit string
+	help            bool
+)
 
 type Options struct {
 	cliArgs        string
@@ -36,7 +39,15 @@ func main() {
 	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file in $PWD")
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
+	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
+
+	if help {
+		fmt.Printf("Usage: %s [options]\n", os.Args[0])
+		fmt.Println("Options:")
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
 
 	if opts.init {
 		if err := task.InitTaskfile(); err != nil {
