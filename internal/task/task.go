@@ -19,21 +19,21 @@ import (
 
 // represents parsed task file
 type Config struct {
-	DotEnv      string
-	Env         map[string]string
-	Tasks       map[string]Task
-	ScriptDir   string
+	DotEnv      string            `toml:"dotenv"`
+	Env         map[string]string `toml:"env"`
+	Tasks       map[string]Task   `toml:"tasks"`
+	ScriptDir   string            `toml:"script_dir"`
 	TaskFileDir string
 }
 
 // represents an individual task
 type Task struct {
-	Cmds   []string
-	Deps   [][]string
-	Dir    string
-	Env    map[string]string
-	DotEnv string
-	Pure   bool
+	Cmds   []string          `toml:"cmds"`
+	Deps   [][]string        `toml:"deps"`
+	Dir    string            `toml:"dir"`
+	Env    map[string]string `toml:"env"`
+	DotEnv string            `toml:"dotenv"`
+	Pure   bool              `toml:"pure"`
 }
 
 type Executor struct {
@@ -130,7 +130,7 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			}
 		} else {
 			// if there are no cmds then we intend to run a script with the name name as the task
-			script := fmt.Sprintf("%s/%s.sh", exec.Config.ScriptDir, task)
+			script := fmt.Sprintf("%s/%s", exec.Config.ScriptDir, task)
 			err := exec.runCommand(script, taskConfig.Dir, env)
 			if err != nil {
 				fmt.Println(err.Error())
@@ -181,7 +181,7 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
 			}
 			fmt.Printf("%s]\n", indent)
 		} else {
-			fmt.Printf("%s# will run `scripts/%s.sh`\n", indent, name)
+			fmt.Printf("%s# will run `%s/%s.sh`\n", indent, exec.Config.ScriptDir, name)
 		}
 
 		if t.Dir != "" {
@@ -239,7 +239,9 @@ func NewTaskConfig(taskFile, cliArgs string) (*Config, error) {
 	config.TaskFileDir = filepath.Dir(taskFile)
 
 	// set the script dir
-	config.ScriptDir = "scripts"
+	if len(config.ScriptDir) == 0 {
+		config.ScriptDir = "tsk"
+	}
 
 	return &config, nil
 }

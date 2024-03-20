@@ -5,6 +5,9 @@ env = {
 
 dotenv = ".top.env"
 
+# the location to look for scripts when a task doesn't contains `cmds`
+# script_dir = "tsk"
+
 # at its simplest, tasks are a series of sequential shell commands expressed
 # as a list of strings
 [tasks.hello_world]
