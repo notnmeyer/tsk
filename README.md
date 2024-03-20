@@ -66,7 +66,7 @@ cmds = ["echo main"]
 
 writing shell in toml or yaml files sucks—you miss out of syntax highlighting, linting, and other tools like shellcheck.
 
-you may omit a task's `cmds` field, which instead runs a script with the same name as the task from the `scripts` directory relative to the location of your `tasks.toml` file.
+you may omit a task's `cmds` field, which instead runs a script with the same name as the task from the `tsk` directory relative to the location of your `tasks.toml` file.
 
 if you need to write anything more complicated than one or two short commands in a task, use a script!
 
