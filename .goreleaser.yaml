@@ -81,4 +81,4 @@ brews:
     repository:
       owner: notnmeyer
       name: homebrew-tsk
-    skip_upload: true
+    skip_upload: auto
