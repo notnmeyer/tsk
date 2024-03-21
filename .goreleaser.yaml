@@ -81,4 +81,5 @@ brews:
     repository:
       owner: notnmeyer
       name: homebrew-tsk
+      token: "{{ .Env.HOMEBREW_TAP_REPO_GITHUB_TOKEN }}"
     skip_upload: auto
