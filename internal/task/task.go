@@ -28,12 +28,13 @@ type Config struct {
 
 // represents an individual task
 type Task struct {
-	Cmds   []string          `toml:"cmds"`
-	Deps   [][]string        `toml:"deps"`
-	Dir    string            `toml:"dir"`
-	Env    map[string]string `toml:"env"`
-	DotEnv string            `toml:"dotenv"`
-	Pure   bool              `toml:"pure"`
+	Cmds        []string          `toml:"cmds"`
+	Deps        [][]string        `toml:"deps"`
+	Description string            `toml:"description"`
+	Dir         string            `toml:"dir"`
+	Env         map[string]string `toml:"env"`
+	DotEnv      string            `toml:"dotenv"`
+	Pure        bool              `toml:"pure"`
 }
 
 type Executor struct {
@@ -172,28 +173,49 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
 	// gaaaah, i like the end result but i hate this
 	indent := "  "
 	for name, t := range tasks {
-		fmt.Printf("[%s]\n", name)
+		// name
+		fmt.Printf("%s:\n", name)
 
-		if len(t.Cmds) > 0 {
-			fmt.Printf("%sCmds = [\n", indent)
-			for _, cmd := range t.Cmds {
-				fmt.Printf("%s\"%s\",\n", indent+indent, cmd)
+		// description
+		if t.Description != "" {
+			fmt.Printf("%sdescription:\n", indent)
+			trimmed := strings.TrimSpace(t.Description)
+			for _, line := range strings.Split(trimmed, "\n") {
+				fmt.Printf("%s%s\n", strings.Repeat(indent, 2), line)
 			}
-			fmt.Printf("%s]\n", indent)
+		}
+
+		// deps
+		if len(t.Deps) > 0 {
+			fmt.Printf("%sdeps:\n", indent)
+			for _, dep := range t.Deps {
+				fmt.Printf("%s%v\n", indent+indent, dep)
+			}
+		}
+
+		// cmds
+		if len(t.Cmds) > 0 {
+			fmt.Printf("%scommands:\n", indent)
+			for _, cmd := range t.Cmds {
+				fmt.Printf("%s\n", indent+indent+cmd)
+			}
 		} else {
 			fmt.Printf("%s# will run `%s/%s.sh`\n", indent, exec.Config.ScriptDir, name)
 		}
 
+		// dir
 		if t.Dir != "" {
-			fmt.Printf("%sDir = \"%s\"\n", indent, t.Dir)
+			fmt.Printf("%sdir: %s\n", indent, t.Dir)
 		}
 
+		// dotenv
 		if t.DotEnv != "" {
-			fmt.Printf("%sDotEnv = \"%s\"\n", indent, t.DotEnv)
+			fmt.Printf("%sdotenv: %s\n", indent, t.DotEnv)
 		}
 
+		// pure
 		if t.Pure == true {
-			fmt.Printf("%sPure = %t\n", indent, t.Pure)
+			fmt.Printf("%spure: %t\n", indent, t.Pure)
 		}
 
 		fmt.Println("")
