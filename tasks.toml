@@ -13,14 +13,22 @@ cmds = [
 ]
 
 [tasks.release]
+description = '''
+Create a release (locally, no CI).
+
+usage: version=0.0.0 tsk release
+'''
 dotenv = ".env"
 
 [tasks.release_ci]
-# usage:
-# tsk release_ci -- v0.0.0
+description = '''
+Create and push a new tag to GitHub, triggering a new release from CI.
+
+usage: `tsk release_ci -- v0.0.0`
+'''
 cmds = [
   "git tag {{.CLI_ARGS}}",
-  "git push origin --tags",
+  "git push origin {{.CLI_ARGS}}",
 ]
 
 [tasks.release_dry]

@@ -28,12 +28,13 @@ type Config struct {
 
 // represents an individual task
 type Task struct {
-	Cmds   []string          `toml:"cmds"`
-	Deps   [][]string        `toml:"deps"`
-	Dir    string            `toml:"dir"`
-	Env    map[string]string `toml:"env"`
-	DotEnv string            `toml:"dotenv"`
-	Pure   bool              `toml:"pure"`
+	Cmds        []string          `toml:"cmds"`
+	Deps        [][]string        `toml:"deps"`
+	Description string            `toml:"description"`
+	Dir         string            `toml:"dir"`
+	Env         map[string]string `toml:"env"`
+	DotEnv      string            `toml:"dotenv"`
+	Pure        bool              `toml:"pure"`
 }
 
 type Executor struct {
