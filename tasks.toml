@@ -15,6 +15,14 @@ cmds = [
 [tasks.release]
 dotenv = ".env"
 
+[tasks.release_ci]
+# usage:
+# tsk release_ci -- v0.0.0
+cmds = [
+  "git tag {{.CLI_ARGS}}",
+  "git push origin --tags",
+]
+
 [tasks.release_dry]
 dotenv = ".env"
 cmds = [
