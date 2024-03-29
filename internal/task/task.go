@@ -200,7 +200,7 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
 				fmt.Printf("%s\n", indent+indent+cmd)
 			}
 		} else {
-			fmt.Printf("%s# will run `%s/%s.sh`\n", indent, exec.Config.ScriptDir, name)
+			fmt.Printf("%s# will run `%s/%s`\n", indent, exec.Config.ScriptDir, name)
 		}
 
 		// dir

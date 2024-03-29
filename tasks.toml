@@ -45,6 +45,11 @@ cmds = ["go mod tidy"]
 
 [tasks.install_release]
 # see scripts/install_release.sh for configurable env arguments
+description = '''
+Downloads the specified release and installs it to ~/bin.
+
+usage: version=0.8.1 platform=Darwin arch=arm64 tsk install_release
+'''
 
 [tasks.sign]
 dotenv = ".env"
