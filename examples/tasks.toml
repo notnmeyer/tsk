@@ -21,7 +21,7 @@ cmds = [
   "echo \"my pwd is $(pwd)\"", # you can use subshells
 ]
 
-# when `cmds` are omitted tsk attempts to run a script located at `scripts/<task_name>.sh`
+# when `cmds` are omitted tsk attempts to run a script located at `tsk/<task_name>`
 [tasks.no_cmd]
 env = {
   GREETING = "Hello",
