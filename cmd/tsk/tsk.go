@@ -6,7 +6,9 @@ import (
 	"regexp"
 	"strings"
 
+	output "github.com/notnmeyer/tsk/internal/outputformat"
 	"github.com/notnmeyer/tsk/internal/task"
+
 	flag "github.com/spf13/pflag"
 )
 
@@ -21,10 +23,13 @@ type Options struct {
 	filter         string
 	init           bool
 	listTasks      bool
+	output         string
 	pure           bool
 	taskFile       string
 	tasks          []string
 }
+
+const defaultOutputFormat = output.OutputFormat(output.Text)
 
 func init() {
 	// TOML 1.1 features are behind a flag until officially released
@@ -35,8 +40,9 @@ func main() {
 	opts := Options{}
 	flag.BoolVarP(&opts.displayVersion, "version", "V", false, "display tsk version")
 	flag.StringVarP(&opts.filter, "filter", "F", ".*", "regex filter for --list")
-	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
 	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file in $PWD")
+	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
+	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s, %s)", string(output.Text), string(output.Markdown)))
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
 	flag.BoolVarP(&help, "help", "h", false, "")
@@ -63,6 +69,15 @@ func main() {
 		return
 	}
 
+	if opts.output != string(defaultOutputFormat) {
+		switch opts.output {
+		case string(output.Text), string(output.Markdown):
+		default:
+			fmt.Printf("--output must one of: %s, %s\n", string(output.Text), string(output.Markdown))
+			os.Exit(1)
+		}
+	}
+
 	// check if there are args passed after "--".
 	//   - if "--" is not present ArgsLenAtDash() returns -1.
 	//   - dash position 0 would be invocations like, `tsk -l -- foo`
@@ -87,7 +102,7 @@ func main() {
 	}
 
 	if opts.listTasks {
-		exec.ListTasksFromTaskFile(regexp.MustCompile(opts.filter))
+		exec.ListTasksFromTaskFile(regexp.MustCompile(opts.filter), output.OutputFormat(opts.output))
 		return
 	}
 
