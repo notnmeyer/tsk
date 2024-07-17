@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 
+	output "github.com/notnmeyer/tsk/internal/outputformat"
+
 	"github.com/BurntSushi/toml"
 	"mvdan.cc/sh/v3/expand"
 	"mvdan.cc/sh/v3/interp"
@@ -167,62 +169,74 @@ func (exec *Executor) runCommand(cmd string, dir string, env []string) error {
 	return nil
 }
 
-func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp) {
+func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp, format output.OutputFormat) {
 	tasks := filterTasks(&exec.Config.Tasks, regex)
-
-	// gaaaah, i like the end result but i hate this
 	indent := "  "
-	for name, t := range tasks {
-		// name
-		fmt.Printf("%s:\n", name)
 
-		// description
-		if t.Description != "" {
-			fmt.Printf("%sdescription:\n", indent)
-			trimmed := strings.TrimSpace(t.Description)
-			for _, line := range strings.Split(trimmed, "\n") {
-				fmt.Printf("%s%s\n", strings.Repeat(indent, 2), line)
+	switch format {
+	case output.Markdown:
+		for name, t := range tasks {
+			fmt.Printf("## %s\n", name)
+			if len(t.Cmds) > 0 {
+				for _, cmd := range t.Cmds {
+					fmt.Printf("%s- %s\n", indent, cmd)
+				}
+			} else {
+				fmt.Printf("%s- %s/%s\n", indent, exec.Config.ScriptDir, name)
 			}
 		}
+	case output.TOML:
+		toml.NewEncoder(os.Stdout).Encode(tasks)
+	case output.Text:
+		for name, t := range tasks {
+			// name
+			fmt.Printf("%s:\n", name)
 
-		// deps
-		if len(t.Deps) > 0 {
-			fmt.Printf("%sdeps:\n", indent)
-			for _, dep := range t.Deps {
-				fmt.Printf("%s%v\n", indent+indent, dep)
+			// description
+			if t.Description != "" {
+				fmt.Printf("%sdescription:\n", indent)
+				trimmed := strings.TrimSpace(t.Description)
+				for _, line := range strings.Split(trimmed, "\n") {
+					fmt.Printf("%s%s\n", strings.Repeat(indent, 2), line)
+				}
 			}
-		}
 
-		// cmds
-		if len(t.Cmds) > 0 {
+			// deps
+			if len(t.Deps) > 0 {
+				fmt.Printf("%sdeps:\n", indent)
+				for _, dep := range t.Deps {
+					fmt.Printf("%s%v\n", indent+indent, dep)
+				}
+			}
+
+			// cmds
 			fmt.Printf("%scommands:\n", indent)
-			for _, cmd := range t.Cmds {
-				fmt.Printf("%s\n", indent+indent+cmd)
+			if len(t.Cmds) > 0 {
+				for _, cmd := range t.Cmds {
+					fmt.Printf("%s\n", indent+indent+cmd)
+				}
+			} else {
+				fmt.Printf("%s%s/%s\n", indent+indent, exec.Config.ScriptDir, name)
 			}
-		} else {
-			fmt.Printf("%s# will run `%s/%s`\n", indent, exec.Config.ScriptDir, name)
-		}
 
-		// dir
-		if t.Dir != "" {
-			fmt.Printf("%sdir: %s\n", indent, t.Dir)
-		}
+			// dir
+			if t.Dir != "" {
+				fmt.Printf("%sdir: %s\n", indent, t.Dir)
+			}
 
-		// dotenv
-		if t.DotEnv != "" {
-			fmt.Printf("%sdotenv: %s\n", indent, t.DotEnv)
-		}
+			// dotenv
+			if t.DotEnv != "" {
+				fmt.Printf("%sdotenv: %s\n", indent, t.DotEnv)
+			}
 
-		// pure
-		if t.Pure == true {
-			fmt.Printf("%spure: %t\n", indent, t.Pure)
-		}
+			// pure
+			if t.Pure == true {
+				fmt.Printf("%spure: %t\n", indent, t.Pure)
+			}
 
-		fmt.Println("")
+			fmt.Println("")
+		}
 	}
-
-	// pure toml representation. simple but includes blank task attributes.
-	// toml.NewEncoder(os.Stdout).Encode(tasks)
 }
 
 func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
