@@ -61,13 +61,6 @@ func (c *Config) CompileEnv() ([]string, error) {
 	return env, nil
 }
 
-func (t *Task) HasCmds() bool {
-	if len(t.Cmds) > 0 {
-		return true
-	}
-	return false
-}
-
 func (t *Task) CompileEnv(env []string) ([]string, error) {
 	env = append(env, ConvertEnvToStringSlice(t.Env)...)
 
@@ -192,8 +185,9 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp, format output.
 				fmt.Printf("%s- %s/%s\n", indent, exec.Config.ScriptDir, name)
 			}
 		}
+	case output.TOML:
+		toml.NewEncoder(os.Stdout).Encode(tasks)
 	case output.Text:
-		// gaaaah, i like the end result but i hate this
 		for name, t := range tasks {
 			// name
 			fmt.Printf("%s:\n", name)
@@ -243,9 +237,6 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp, format output.
 			fmt.Println("")
 		}
 	}
-
-	// pure toml representation. simple but includes blank task attributes.
-	// toml.NewEncoder(os.Stdout).Encode(tasks)
 }
 
 func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {

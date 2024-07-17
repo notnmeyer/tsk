@@ -69,13 +69,9 @@ func main() {
 		return
 	}
 
-	if opts.output != string(defaultOutputFormat) {
-		switch opts.output {
-		case string(output.Text), string(output.Markdown):
-		default:
-			fmt.Printf("--output must one of: %s, %s\n", string(output.Text), string(output.Markdown))
-			os.Exit(1)
-		}
+	if !output.IsValid(opts.output) {
+		fmt.Printf("--output must one of: %s\n", output.String())
+		os.Exit(1)
 	}
 
 	// check if there are args passed after "--".
