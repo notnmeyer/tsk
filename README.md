@@ -26,3 +26,7 @@ see `examples/tasks.toml` for complete usage and configuration reference.
 ## docs
 
 https://notnmeyer.github.io/tsk-docs/
+
+## release
+
+tag a new release with, `env version=0.0.0 tsk release`, and let GHA do it its thing.
