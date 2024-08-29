@@ -13,5 +13,5 @@ fi
 
 git tag -a v${version}
 git push --tags
-goreleaser release --clean
 
+# GHA will run goreleaser
