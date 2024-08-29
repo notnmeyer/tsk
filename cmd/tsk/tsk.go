@@ -44,7 +44,7 @@ func main() {
 	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
 	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s, %s)", string(output.Text), string(output.Markdown)))
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
-	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
+	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
