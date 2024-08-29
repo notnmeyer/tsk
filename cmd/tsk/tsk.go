@@ -42,7 +42,7 @@ func main() {
 	flag.StringVarP(&opts.filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file in $PWD")
 	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
-	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s, %s)", string(output.Text), string(output.Markdown)))
+	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s)", output.String()))
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
 	flag.BoolVarP(&help, "help", "h", false, "")
