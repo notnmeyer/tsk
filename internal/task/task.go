@@ -249,7 +249,7 @@ func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
 	return filtered
 }
 
-func NewTaskConfig(taskFile, cliArgs string) (*Config, error) {
+func NewTaskConfig(taskFile, cliArgs string, listTasks bool) (*Config, error) {
 	var err error
 	if taskFile == "" {
 		dir, _ := os.Getwd()
@@ -260,7 +260,7 @@ func NewTaskConfig(taskFile, cliArgs string) (*Config, error) {
 	}
 
 	// render the task file as a template
-	rendered, err := render(taskFile, cliArgs)
+	rendered, err := render(taskFile, cliArgs, listTasks)
 	if err != nil {
 		return nil, err
 	}
