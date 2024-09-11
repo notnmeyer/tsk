@@ -85,7 +85,7 @@ func main() {
 	}
 
 	// cfg is the parsed task file
-	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs)
+	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs, opts.listTasks)
 	if err != nil {
 		panic(err)
 	}
