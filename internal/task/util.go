@@ -56,7 +56,7 @@ func render(file, cliArgs string, cliArgsPlaceholder bool) (*bytes.Buffer, error
 
 	// insert a placeholder value for cliArgs for display purposes
 	if cliArgsPlaceholder && cliArgs == "" {
-		cliArgs = "<args>"
+		cliArgs = "{{.CLI_ARGS}}"
 	}
 
 	var renderedBuffer bytes.Buffer
