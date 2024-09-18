@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/notnmeyer/tsk/internal/openai"
 	output "github.com/notnmeyer/tsk/internal/outputformat"
 	"github.com/notnmeyer/tsk/internal/task"
 
@@ -21,6 +22,7 @@ type Options struct {
 	cliArgs        string
 	displayVersion bool
 	filter         string
+	generate       bool
 	init           bool
 	listTasks      bool
 	output         string
@@ -45,34 +47,9 @@ func main() {
 	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s)", output.String()))
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
+	flag.BoolVarP(&opts.generate, "generate", "g", false, "use AI to generate a task with the name specified. pass the prompt for the task after '--'. usage: tsk fib --generate -- generate fib numbers up to 10")
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
-
-	if help {
-		fmt.Printf("Usage: %s [options]\n", os.Args[0])
-		fmt.Println("Options:")
-		flag.PrintDefaults()
-		os.Exit(0)
-	}
-
-	if opts.init {
-		if err := task.InitTaskfile(); err != nil {
-			fmt.Printf("couldn't init: %s\n", err.Error())
-			os.Exit(1)
-		}
-		fmt.Printf("created tasks.toml!\n")
-		return
-	}
-
-	if opts.displayVersion {
-		fmt.Printf("tsk v%s, git:%s\n", version, commit)
-		return
-	}
-
-	if !output.IsValid(opts.output) {
-		fmt.Printf("--output must one of: %s\n", output.String())
-		os.Exit(1)
-	}
 
 	// check if there are args passed after "--".
 	//   - if "--" is not present ArgsLenAtDash() returns -1.
@@ -82,6 +59,32 @@ func main() {
 		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
 	} else {
 		opts.tasks = flag.Args()
+	}
+
+	switch {
+	case help:
+		fmt.Printf("Usage: %s [options]\n", os.Args[0])
+		fmt.Println("Options:")
+		flag.PrintDefaults()
+		os.Exit(0)
+	case opts.init:
+		if err := task.InitTaskfile(); err != nil {
+			fmt.Printf("couldn't init: %s\n", err.Error())
+			os.Exit(1)
+		}
+		fmt.Printf("created tasks.toml!\n")
+		return
+	case opts.displayVersion:
+		fmt.Printf("tsk v%s, git:%s\n", version, commit)
+		return
+	case opts.generate:
+		// TODO: check for ops.cliArgs
+		resp, err := openai.GenerateTask(opts.tasks[0], opts.cliArgs)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(*resp)
+		os.Exit(0)
 	}
 
 	// cfg is the parsed task file
@@ -98,6 +101,11 @@ func main() {
 	}
 
 	if opts.listTasks {
+		if !output.IsValid(opts.output) {
+			fmt.Printf("--output must one of: %s\n", output.String())
+			os.Exit(1)
+		}
+
 		exec.ListTasksFromTaskFile(regexp.MustCompile(opts.filter), output.OutputFormat(opts.output))
 		return
 	}

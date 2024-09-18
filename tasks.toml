@@ -1,4 +1,5 @@
 [tasks.run]
+dotenv = ".env"
 cmds = [
   "go run cmd/tsk/tsk.go {{.CLI_ARGS}}"
 ]
