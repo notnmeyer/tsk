@@ -32,6 +32,7 @@ type Options struct {
 }
 
 const defaultOutputFormat = output.OutputFormat(output.Text)
+const generateUsage = "tsk fib --generate -- generate fib numbers up to 10"
 
 func init() {
 	// TOML 1.1 features are behind a flag until officially released
@@ -47,7 +48,7 @@ func main() {
 	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s)", output.String()))
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
-	flag.BoolVarP(&opts.generate, "generate", "g", false, "use AI to generate a task with the name specified. pass the prompt for the task after '--'. usage: tsk fib --generate -- generate fib numbers up to 10")
+	flag.BoolVarP(&opts.generate, "generate", "g", false, fmt.Sprintf("use AI to generate a task. provide a name, pass your description after '--'. for example, '%s'. you must set OPENAI_API_KEY to use this feature.", generateUsage))
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
@@ -78,11 +79,16 @@ func main() {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
 		return
 	case opts.generate:
-		// TODO: check for ops.cliArgs
+		if opts.cliArgs == "" {
+			fmt.Printf("you must describe the task to generate. usage: %s\n", generateUsage)
+			os.Exit(1)
+		}
+
 		resp, err := openai.GenerateTask(opts.tasks[0], opts.cliArgs)
 		if err != nil {
 			panic(err)
 		}
+
 		fmt.Println(*resp)
 		os.Exit(0)
 	}
