@@ -2,9 +2,10 @@ package openai
 
 import (
 	"context"
-	_ "embed"
 	"fmt"
 	"os"
+
+	_ "embed"
 
 	openai "github.com/sashabaranov/go-openai"
 )
@@ -27,7 +28,7 @@ const promptBase = `
 func newClient() (*openai.Client, error) {
 	token := os.Getenv("OPENAI_API_KEY")
 	if len(token) == 0 {
-		return nil, fmt.Errorf("OPENAI_API_KEY cannot be blank")
+		return nil, fmt.Errorf("to generate a task, an OpenAI API key must be set to the env var OPENAI_API_KEY")
 	}
 
 	client := openai.NewClient(token)
