@@ -35,7 +35,7 @@ type Options struct {
 }
 
 const defaultOutputFormat = output.OutputFormat(output.Text)
-const generateUsage = "tsk fib --generate -- generate fib numbers up to 10"
+const generateUsage = "tsk <name> --generate -- <description>"
 
 func init() {
 	// TOML 1.1 features are behind a flag until officially released
@@ -74,7 +74,7 @@ func main() {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
 		return
 	case opts.generate:
-		if opts.cliArgs == "" {
+		if len(opts.tasks) == 0 || opts.cliArgs == "" {
 			fmt.Printf("you must describe the task to generate. usage: %s\n", generateUsage)
 			os.Exit(1)
 		}
