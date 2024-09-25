@@ -1,8 +1,15 @@
+[tasks.copy_tsk_ref]
+cmds = ["cp examples/tasks.toml internal/openai/_reference_tasks.toml"]
+
 [tasks.run]
+dotenv = ".env"
+deps = [["copy_tsk_ref"]]
 cmds = [
   "go run cmd/tsk/tsk.go {{.CLI_ARGS}}"
 ]
+
 [tasks.build]
+deps = [["copy_tsk_ref"]]
 cmds = [
   "go build -o bin/tsk -v cmd/tsk/tsk.go"
 ]
@@ -38,6 +45,7 @@ cmds = [
 ]
 
 [tasks.test]
+deps = [["copy_tsk_ref"]]
 cmds = ["go test ./... {{.CLI_ARGS}}"]
 
 [tasks.deps]
