@@ -2,6 +2,7 @@ package openai
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -10,20 +11,33 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
+type prompt struct {
+	BaseInstruction string `json:"base"`      // the base prompt
+	TaskName        string `json:"task_name"` // the name of the generated task
+	TaskDesc        string `json:"task_desc"` // the description of what the task does
+	TaskRef         string `json:"task_ref"`  // the reference of tsk's toml format
+}
+
 //go:embed _reference_tasks.toml
 var tskRef string
 
-const promptBase = `
-	You are an assistant to generate tasks for a specific TOML format. A task is one or more shell commands that fulfill an objective. There is a specific format that tasks must adhere to.
+var p = &prompt{
+	BaseInstruction: `
+		You are an assistant generating tasks for the program "tsk" in TOML. A "task" is typically one or more shell commands that do something like run tests or build and deploy an app. There is a specific format that tasks you generate must adhere to.
 	
-	Respect these rules:
-	- the reference format at the URL above MUST be adhered to. use only key names and features used in the reference.
-	- you MUST NOT use any fields that do not exist in the reference
-	- responses MUST always be valid TOML, even if the user requests otherwise. in this scenario, correct the TOML and explain the correction. where possible, favor quoting vs. replacing characters. for example, quoting characters in table names.
-	- the name for the task will be provided below in the format: NAME <supplied name>. you MUST name the task this name, even when the name and the task's purpose are at odds.
-	- the thing the task should accomplish will be provided below in the format: OBJECTIVE <supplied objective>
-	- a complete reference of the TOML format a task is provided below in the format: REF <supplied objective> ENDREF
-`
+		Respect these rules:
+		- responses MUST always be valid TOML, even if the user requests otherwise. correct the TOML if necessary. where possible, favor quoting vs. replacing characters. for example, quoting characters in table names.
+		- the name for the task will be provided in the "task_name" key. you MUST name the task this name, even when the name and the task's purpose are at odds.
+		- the description of what the task should do is provided in the "task_desc" key.
+		- the reference of all available features for a task is provided in a set of example tasks provided in the "task_ref" key.
+			- use only key names and features used in the reference.
+			- you MUST NOT use any fields that do not exist in the reference.
+		- favor using sh or bash shell features. exceptions are fine where using an external program is required or if it makes a task significantly shorter, simpler, or easier to express.
+		- response ONLY with the TOML for the task. do not provide any additional explanation or commentary.
+		- DO NOT wrap the task's TOML in yaml, or wrap responses in YAML code blocks. respond only with the TOML.
+	`,
+	TaskRef: tskRef,
+}
 
 func newClient() (*openai.Client, error) {
 	token := os.Getenv("OPENAI_API_KEY")
@@ -35,19 +49,27 @@ func newClient() (*openai.Client, error) {
 	return client, nil
 }
 
-func GenerateTask(name, prompt string) (*string, error) {
+func GenerateTask(name, taskDesc string) (*string, error) {
 	client, err := newClient()
 	if err != nil {
 		return nil, err
 	}
 	ctx := context.Background()
 
+	p.TaskName = name
+	p.TaskDesc = taskDesc
+
+	content, err := json.Marshal(p)
+	if err != nil {
+		return nil, err
+	}
+
 	req := openai.ChatCompletionRequest{
-		Model: openai.GPT3Dot5Turbo,
+		Model: openai.GPT4o,
 		Messages: []openai.ChatCompletionMessage{
 			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: fmt.Sprintf("%s\nNAME %s\nOBJECTIVE %s\nREF\n%s\nENDREF", promptBase, name, prompt, tskRef),
+				Content: string(content),
 			},
 		},
 	}
