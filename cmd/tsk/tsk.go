@@ -27,6 +27,7 @@ type Options struct {
 	pure           bool
 	taskFile       string
 	tasks          []string
+	which          bool
 }
 
 const defaultOutputFormat = output.OutputFormat(output.Text)
@@ -45,6 +46,7 @@ func main() {
 	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s)", output.String()))
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
+	flag.BoolVar(&opts.which, "which", false, "print the path to the found tasks.toml, or an error")
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
@@ -88,6 +90,10 @@ func main() {
 	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs, opts.listTasks)
 	if err != nil {
 		panic(err)
+	}
+
+	if opts.which {
+		fmt.Println(cfg.TaskFilePath)
 	}
 
 	exec := task.Executor{
