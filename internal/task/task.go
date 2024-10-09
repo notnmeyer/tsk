@@ -21,11 +21,12 @@ import (
 
 // represents parsed task file
 type Config struct {
-	DotEnv      string            `toml:"dotenv"`
-	Env         map[string]string `toml:"env"`
-	Tasks       map[string]Task   `toml:"tasks"`
-	ScriptDir   string            `toml:"script_dir"`
-	TaskFileDir string
+	DotEnv       string            `toml:"dotenv"`
+	Env          map[string]string `toml:"env"`
+	Tasks        map[string]Task   `toml:"tasks"`
+	ScriptDir    string            `toml:"script_dir"`
+	TaskFileDir  string            `toml:"task_file_dir"`
+	TaskFilePath string            `toml:"task_file_path"`
 }
 
 // represents an individual task
@@ -273,6 +274,7 @@ func NewTaskConfig(taskFile, cliArgs string, listTasks bool) (*Config, error) {
 
 	// set the task file dir, used as the base for a task's working directory
 	config.TaskFileDir = filepath.Dir(taskFile)
+	config.TaskFilePath = taskFile
 
 	// set the script dir
 	if len(config.ScriptDir) == 0 {
