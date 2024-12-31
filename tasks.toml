@@ -57,3 +57,9 @@ cmds = [
   "gon gon-arm64.hcl",
   "gon gon-amd64.hcl",
 ]
+
+[tasks.install_completions]
+description = "install shell completions"
+cmds = [
+  "cp completions/tsk.fish ~/.config/fish/completions/"
+]
