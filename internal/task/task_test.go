@@ -49,26 +49,25 @@ func TestConvertEnv(t *testing.T) {
 }
 
 func TestRunTasks(t *testing.T) {
-	config := Config{
-		Tasks: map[string]Task{
-			"foo": {
-				Cmds: []string{"echo foo"},
-			},
-			"bar": {
-				Cmds: []string{"echo bar"},
-				Deps: [][]string{
-					{"foo"},
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+		Config: &Config{
+			Tasks: map[string]Task{
+				"foo": {
+					Cmds: []string{"echo foo"},
+				},
+				"bar": {
+					Cmds: []string{"echo bar"},
+					Deps: [][]string{
+						{"foo"},
+					},
 				},
 			},
 		},
 	}
 
-	out := new(bytes.Buffer)
-	exec := Executor{
-		Stdout: out,
-	}
-
-	err := exec.RunTasks(&config, &[]string{"bar"})
+	err := exec.RunTasks(exec.Config, &[]string{"bar"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
@@ -81,29 +80,28 @@ func TestRunTasks(t *testing.T) {
 }
 
 func TestDepsRunInParallel(t *testing.T) {
-	config := Config{
-		Tasks: map[string]Task{
-			"one": {
-				Cmds: []string{"sleep 1", "echo one"},
-			},
-			"two": {
-				Cmds: []string{"echo two"},
-			},
-			"zero": {
-				Cmds: []string{"echo zero"},
-				Deps: [][]string{
-					{"one", "two"},
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+		Config: &Config{
+			Tasks: map[string]Task{
+				"one": {
+					Cmds: []string{"sleep 1", "echo one"},
+				},
+				"two": {
+					Cmds: []string{"echo two"},
+				},
+				"zero": {
+					Cmds: []string{"echo zero"},
+					Deps: [][]string{
+						{"one", "two"},
+					},
 				},
 			},
 		},
 	}
 
-	out := new(bytes.Buffer)
-	exec := Executor{
-		Stdout: out,
-	}
-
-	err := exec.RunTasks(&config, &[]string{"zero"})
+	err := exec.RunTasks(exec.Config, &[]string{"zero"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
@@ -116,33 +114,32 @@ func TestDepsRunInParallel(t *testing.T) {
 }
 
 func TestDepGroupsRunInTheExpectedOrder(t *testing.T) {
-	config := Config{
-		Tasks: map[string]Task{
-			"one": {
-				Cmds: []string{"sleep 1", "echo one"},
-			},
-			"two": {
-				Cmds: []string{"echo two"},
-			},
-			"three": {
-				Cmds: []string{"echo three"},
-			},
-			"zero": {
-				Cmds: []string{"echo zero"},
-				Deps: [][]string{
-					{"one", "two"},
-					{"three"},
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+		Config: &Config{
+			Tasks: map[string]Task{
+				"one": {
+					Cmds: []string{"sleep 1", "echo one"},
+				},
+				"two": {
+					Cmds: []string{"echo two"},
+				},
+				"three": {
+					Cmds: []string{"echo three"},
+				},
+				"zero": {
+					Cmds: []string{"echo zero"},
+					Deps: [][]string{
+						{"one", "two"},
+						{"three"},
+					},
 				},
 			},
 		},
 	}
 
-	out := new(bytes.Buffer)
-	exec := Executor{
-		Stdout: out,
-	}
-
-	err := exec.RunTasks(&config, &[]string{"zero"})
+	err := exec.RunTasks(exec.Config, &[]string{"zero"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
@@ -183,9 +180,10 @@ func TestDotEnv(t *testing.T) {
 	out := new(bytes.Buffer)
 	exec := Executor{
 		Stdout: out,
+		Config: config,
 	}
 
-	err = exec.RunTasks(config, &[]string{"dotenv"})
+	err = exec.RunTasks(exec.Config, &[]string{"dotenv"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
@@ -200,23 +198,22 @@ func TestDotEnv(t *testing.T) {
 // `task_name.DotEnv` overrides `task_name.Env`
 func TestEnvInheritance(t *testing.T) {
 	expected := "baz"
-	config := Config{
-		Tasks: map[string]Task{
-			"default": {
-				// examples/.env sets BAR=baz
-				DotEnv: ".env",
-				Env:    map[string]string{"BAR": "baz2"},
-				Cmds:   []string{"echo $BAR"},
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+		Config: &Config{
+			Tasks: map[string]Task{
+				"default": {
+					// examples/.env sets BAR=baz
+					DotEnv: ".env",
+					Env:    map[string]string{"BAR": "baz2"},
+					Cmds:   []string{"echo $BAR"},
+				},
 			},
 		},
 	}
 
-	out := new(bytes.Buffer)
-	exec := Executor{
-		Stdout: out,
-	}
-
-	err := exec.RunTasks(&config, &[]string{"default"})
+	err := exec.RunTasks(exec.Config, &[]string{"default"})
 	if err != nil {
 		t.Errorf("Expected no error, got %s", err)
 	}
@@ -229,21 +226,20 @@ func TestEnvInheritance(t *testing.T) {
 
 func TestGlobalEnv(t *testing.T) {
 	expected := "baz2"
-	config := Config{
-		Env: map[string]string{"BAR": expected},
-		Tasks: map[string]Task{
-			"default": {
-				Cmds: []string{"echo $BAR"},
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+		Config: &Config{
+			Env: map[string]string{"BAR": expected},
+			Tasks: map[string]Task{
+				"default": {
+					Cmds: []string{"echo $BAR"},
+				},
 			},
 		},
 	}
 
-	out := new(bytes.Buffer)
-	exec := Executor{
-		Stdout: out,
-	}
-
-	exec.RunTasks(&config, &[]string{"default"})
+	exec.RunTasks(exec.Config, &[]string{"default"})
 	re := regexp.MustCompile(expected)
 	if !re.Match(out.Bytes()) {
 		t.Errorf("Expected '%s', got %s", expected, out.String())
@@ -253,22 +249,21 @@ func TestGlobalEnv(t *testing.T) {
 // a task's env should override the global env
 func TestGlobalEnvInheritance(t *testing.T) {
 	expected := "baz2"
-	config := Config{
-		Env: map[string]string{"BAR": "baz"},
-		Tasks: map[string]Task{
-			"default": {
-				Env:  map[string]string{"BAR": expected},
-				Cmds: []string{"echo $BAR"},
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+		Config: &Config{
+			Env: map[string]string{"BAR": "baz"},
+			Tasks: map[string]Task{
+				"default": {
+					Env:  map[string]string{"BAR": expected},
+					Cmds: []string{"echo $BAR"},
+				},
 			},
 		},
 	}
 
-	out := new(bytes.Buffer)
-	exec := Executor{
-		Stdout: out,
-	}
-
-	exec.RunTasks(&config, &[]string{"default"})
+	exec.RunTasks(exec.Config, &[]string{"default"})
 	re := regexp.MustCompile(expected)
 	if !re.Match(out.Bytes()) {
 		t.Errorf("Expected '%s', got %s", expected, out.String())
@@ -305,10 +300,30 @@ func TestTemplates(t *testing.T) {
 	out := new(bytes.Buffer)
 	exec := Executor{
 		Stdout: out,
+		Config: config,
 	}
 
-	exec.RunTasks(config, &[]string{"template"})
+	exec.RunTasks(exec.Config, &[]string{"template"})
 	if !expected.Match(out.Bytes()) {
 		t.Errorf("Expected '%s' to match '%s'", cliArgs, out.String())
+	}
+}
+
+func TestRunTasksWithInvalidDependency(t *testing.T) {
+	exec := Executor{
+		Stdout: new(bytes.Buffer),
+		Config: &Config{
+			Tasks: map[string]Task{
+				"foo": {
+					Deps: [][]string{{"non-existent-task"}},
+					Cmds: []string{"echo foo"},
+				},
+			},
+		},
+	}
+
+	err := exec.RunTasks(exec.Config, &[]string{"foo"})
+	if err == nil {
+		t.Error("Expected error for non-existent dependency, got nil")
 	}
 }

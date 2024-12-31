@@ -1,5 +1,7 @@
 package main
 
+// Version and commit are set at build time via ldflags
+
 import (
 	"fmt"
 	"os"
@@ -110,31 +112,10 @@ func main() {
 	}
 
 	// verify the tasks at the cli exist
-	if err := verifyTasks(exec.Config, opts.tasks); err != nil {
+	if err := exec.VerifyTasks(opts.tasks); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	exec.RunTasks(exec.Config, &opts.tasks)
-}
-
-// verifies the tasks provided at the command line exist
-func verifyTasks(config *task.Config, tasks []string) error {
-	for _, task := range tasks {
-		if _, ok := config.Tasks[task]; !ok {
-			return fmt.Errorf("task '%s' not found in taskfile", task)
-		}
-
-		// if a task specifies deps, verify they exist
-		if len(config.Tasks[task].Deps) > 0 {
-			for _, depGroup := range config.Tasks[task].Deps {
-				for _, dep := range depGroup {
-					if _, ok := config.Tasks[dep]; !ok {
-						return fmt.Errorf("task '%s' not found in taskfile", dep)
-					}
-				}
-			}
-		}
-	}
-	return nil
 }

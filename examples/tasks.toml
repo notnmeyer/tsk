@@ -94,3 +94,7 @@ cmds = ["echo 'doing setup4...'"]
 
 [tasks.exit]
 cmds = ["echo exiting 1...", "exit 1"]
+
+[tasks.non_existent_dep]
+deps = [["non-existent-task"]]
+cmds = ["echo 'running cmd...'"]
