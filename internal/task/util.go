@@ -48,10 +48,15 @@ func appendDotEnvToEnv(env []string, dotenv string) ([]string, error) {
 	return env, nil
 }
 
-func render(file, cliArgs string) (*bytes.Buffer, error) {
+func render(file, cliArgs string, cliArgsPlaceholder bool) (*bytes.Buffer, error) {
 	tmpl, err := template.ParseFiles(file)
 	if err != nil {
 		return nil, err
+	}
+
+	// insert a placeholder value for cliArgs for display purposes
+	if cliArgsPlaceholder && cliArgs == "" {
+		cliArgs = "{{.CLI_ARGS}}"
 	}
 
 	var renderedBuffer bytes.Buffer

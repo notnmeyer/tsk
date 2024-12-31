@@ -29,6 +29,7 @@ type Options struct {
 	pure           bool
 	taskFile       string
 	tasks          []string
+	which          bool
 }
 
 const defaultOutputFormat = output.OutputFormat(output.Text)
@@ -44,9 +45,10 @@ func main() {
 	flag.StringVarP(&opts.filter, "filter", "F", ".*", "regex filter for --list")
 	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file in $PWD")
 	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
-	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s, %s)", string(output.Text), string(output.Markdown)))
+	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s)", output.String()))
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
-	flag.StringVarP(&opts.taskFile, "file", "f", "tasks.toml", "taskfile to use")
+	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
+	flag.BoolVar(&opts.which, "which", false, "print the path to the found tasks.toml, or an error")
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
@@ -87,9 +89,13 @@ func main() {
 	}
 
 	// cfg is the parsed task file
-	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs)
+	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs, opts.listTasks)
 	if err != nil {
 		panic(err)
+	}
+
+	if opts.which {
+		fmt.Println(cfg.TaskFilePath)
 	}
 
 	exec := task.Executor{

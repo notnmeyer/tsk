@@ -173,7 +173,7 @@ func TestFindTaskFile(t *testing.T) {
 func TestDotEnv(t *testing.T) {
 	var taskFile, cliArgs string
 
-	config, err := NewTaskConfig(taskFile, cliArgs)
+	config, err := NewTaskConfig(taskFile, cliArgs, false)
 	if err != nil {
 		panic(err)
 	}
@@ -296,7 +296,7 @@ func TestTemplates(t *testing.T) {
 	expected := regexp.MustCompile(cliArgs)
 	wd, _ := os.Getwd()
 	path, _ := findTaskFile(wd, "tasks.toml")
-	config, _ := NewTaskConfig(path, cliArgs)
+	config, _ := NewTaskConfig(path, cliArgs, false)
 	out := new(bytes.Buffer)
 	exec := Executor{
 		Stdout: out,
@@ -325,5 +325,24 @@ func TestRunTasksWithInvalidDependency(t *testing.T) {
 	err := exec.RunTasks(exec.Config, &[]string{"foo"})
 	if err == nil {
 		t.Error("Expected error for non-existent dependency, got nil")
+  }
+}
+
+// when building --list output for tasks that use CLI_ARGS test that placeholder
+// text is inserted when CLI_ARGS arent provided
+func TestTemplatesWithPlaceholders(t *testing.T) {
+	placeholder := "{{.CLI_ARGS}}"
+	expected := regexp.MustCompile(placeholder)
+	wd, _ := os.Getwd()
+	path, _ := findTaskFile(wd, "tasks.toml")
+	config, _ := NewTaskConfig(path, "", true)
+	out := new(bytes.Buffer)
+	exec := Executor{
+		Stdout: out,
+	}
+
+	exec.RunTasks(config, &[]string{"template"})
+	if !expected.Match(out.Bytes()) {
+		t.Errorf("Expected '%s' to match '%s'", placeholder, out.String())
 	}
 }
