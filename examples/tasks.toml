@@ -98,3 +98,12 @@ cmds = ["echo exiting 1...", "exit 1"]
 [tasks.non_existent_dep]
 deps = [["non-existent-task"]]
 cmds = ["echo 'running cmd...'"]
+
+[tasks.desc]
+desc = "this is a short desc"
+description = '''
+  this is a multi-line
+  description blah blah blah
+  blah blah blah
+'''
+cmds = ["echo desc"]

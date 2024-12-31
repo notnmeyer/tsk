@@ -34,6 +34,7 @@ type Config struct {
 type Task struct {
 	Cmds        []string          `toml:"cmds"`
 	Deps        [][]string        `toml:"deps"`
+	Desc        string            `toml:"desc"`
 	Description string            `toml:"description"`
 	Dir         string            `toml:"dir"`
 	Env         map[string]string `toml:"env"`
@@ -209,6 +210,15 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp, format output.
 			if t.Description != "" {
 				fmt.Printf("%sdescription:\n", indent)
 				trimmed := strings.TrimSpace(t.Description)
+				for _, line := range strings.Split(trimmed, "\n") {
+					fmt.Printf("%s%s\n", strings.Repeat(indent, 2), line)
+				}
+			}
+
+			// desc
+			if t.Desc != "" {
+				fmt.Printf("%sdesc:\n", indent)
+				trimmed := strings.TrimSpace(t.Desc)
 				for _, line := range strings.Split(trimmed, "\n") {
 					fmt.Printf("%s%s\n", strings.Repeat(indent, 2), line)
 				}

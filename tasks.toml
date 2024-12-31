@@ -1,30 +1,27 @@
 [tasks.run]
+desc = "Run tsk"
 cmds = [
   "go run cmd/tsk/tsk.go {{.CLI_ARGS}}"
 ]
+
 [tasks.build]
+desc = "Build the project"
 cmds = [
   "go build -o bin/tsk -v cmd/tsk/tsk.go"
 ]
 
 [tasks.clean]
+desc = "Remove build artifacts"
 cmds = [
   "rm -rf ./dist/*"
 ]
 
 [tasks.release]
-description = '''
-Create a release (locally, no CI).
-
-usage: version=0.0.0 tsk release
-'''
-dotenv = ".env"
-
-[tasks.release_ci]
+desc = "Trigger a release"
 description = '''
 Create and push a new tag to GitHub, triggering a new release from CI.
 
-usage: `tsk release_ci -- v0.0.0`
+usage: `tsk release -- v0.0.0`
 '''
 cmds = [
   "git tag {{.CLI_ARGS}}",
@@ -32,19 +29,23 @@ cmds = [
 ]
 
 [tasks.release_dry]
+desc = "goreleaser dry run"
 dotenv = ".env"
 cmds = [
   "goreleaser release --clean --skip-publish --skip-validate"
 ]
 
 [tasks.test]
+desc = "Run tests"
 cmds = ["go test ./... {{.CLI_ARGS}}"]
 
 [tasks.deps]
+desc = "Install deps"
 cmds = ["go mod tidy"]
 
 [tasks.install_release]
 # see scripts/install_release.sh for configurable env arguments
+desc = "Install a tsk version"
 description = '''
 Downloads the specified release and installs it to ~/bin.
 
@@ -52,6 +53,7 @@ usage: version=0.8.1 platform=Darwin arch=arm64 tsk install_release
 '''
 
 [tasks.sign]
+desc = "Sign binaries"
 dotenv = ".env"
 cmds = [
   "gon gon-arm64.hcl",
@@ -59,7 +61,7 @@ cmds = [
 ]
 
 [tasks.install_completions]
-description = "install shell completions"
+desc = "Install shell completions"
 cmds = [
   "cp completions/tsk.fish ~/.config/fish/completions/"
 ]
