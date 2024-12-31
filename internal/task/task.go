@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
@@ -184,6 +185,8 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp, format output.
 	indent := "  "
 
 	switch format {
+	case output.JSON:
+		json.NewEncoder(os.Stdout).Encode(tasks)
 	case output.Markdown:
 		for name, t := range tasks {
 			fmt.Printf("## %s\n", name)
