@@ -59,7 +59,7 @@ archives:
     files:
       - LICENSE
       - README.md
-      - completions/**/*
+      - completions/*
 
 checksum:
   name_template: checksums.txt
@@ -87,6 +87,6 @@ brews:
       name: homebrew-tsk
       token: "{{ .Env.HOMEBREW_TAP_REPO_GITHUB_TOKEN }}"
     skip_upload: auto
-    install:
+    install: |-
       bin.install "tsk"
       fish_completion.install "completions/tsk.fish"
