@@ -96,6 +96,10 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 	}
 
 	for _, task := range *tasks {
+		// verify the task exists
+		if err := exec.VerifyTasks([]string{task}); err != nil {
+			return err
+		}
 		taskConfig := config.Tasks[task]
 
 		if taskConfig.Dir == "" {
@@ -107,6 +111,11 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 				var wg sync.WaitGroup
 				wg.Add(len(depGroup))
 				for _, dep := range depGroup {
+					// verify the dep exists
+					if err := exec.VerifyTasks([]string{dep}); err != nil {
+						return err
+					}
+
 					go func(dep string) {
 						defer wg.Done()
 						exec.RunTasks(config, &[]string{dep})
@@ -238,6 +247,27 @@ func (exec *Executor) ListTasksFromTaskFile(regex *regexp.Regexp, format output.
 			fmt.Println("")
 		}
 	}
+}
+
+// verifies the tasks provided at the command line exist
+func (exec *Executor) VerifyTasks(tasks []string) error {
+	for _, task := range tasks {
+		if _, ok := exec.Config.Tasks[task]; !ok {
+			return fmt.Errorf("task '%s' not found in taskfile", task)
+		}
+
+		// if a task specifies deps, verify they exist
+		if len(exec.Config.Tasks[task].Deps) > 0 {
+			for _, depGroup := range exec.Config.Tasks[task].Deps {
+				for _, dep := range depGroup {
+					if _, ok := exec.Config.Tasks[dep]; !ok {
+						return fmt.Errorf("task '%s' not found in taskfile", dep)
+					}
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
