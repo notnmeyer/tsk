@@ -56,6 +56,10 @@ archives:
       {{- else if eq .Arch "386" }}i386
       {{- else if eq .Arch "arm" }}arm_{{ .Arm }}
       {{- else }}{{ .Arch }}{{ end }}
+    files:
+      - LICENSE
+      - README.md
+      - completions/**/*
 
 checksum:
   name_template: checksums.txt
@@ -83,3 +87,6 @@ brews:
       name: homebrew-tsk
       token: "{{ .Env.HOMEBREW_TAP_REPO_GITHUB_TOKEN }}"
     skip_upload: auto
+    install:
+      bin.install "tsk"
+      fish_completion.install "completions/tsk.fish"
