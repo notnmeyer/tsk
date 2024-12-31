@@ -325,7 +325,7 @@ func TestRunTasksWithInvalidDependency(t *testing.T) {
 	err := exec.RunTasks(exec.Config, &[]string{"foo"})
 	if err == nil {
 		t.Error("Expected error for non-existent dependency, got nil")
-  }
+	}
 }
 
 // when building --list output for tasks that use CLI_ARGS test that placeholder
@@ -339,9 +339,10 @@ func TestTemplatesWithPlaceholders(t *testing.T) {
 	out := new(bytes.Buffer)
 	exec := Executor{
 		Stdout: out,
+		Config: config,
 	}
 
-	exec.RunTasks(config, &[]string{"template"})
+	exec.RunTasks(exec.Config, &[]string{"template"})
 	if !expected.Match(out.Bytes()) {
 		t.Errorf("Expected '%s' to match '%s'", placeholder, out.String())
 	}
