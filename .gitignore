@@ -8,3 +8,7 @@ dist/
 bin/
 
 .DS_Store
+
+# this is a reference file that is stored in the app, it should be copied from
+# examples/tasks.toml before a build
+internal/openai/_reference_tasks.toml
