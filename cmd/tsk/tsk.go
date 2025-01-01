@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/notnmeyer/tsk/internal/openai"
 	output "github.com/notnmeyer/tsk/internal/outputformat"
 	"github.com/notnmeyer/tsk/internal/task"
 
@@ -23,6 +24,7 @@ type Options struct {
 	cliArgs        string
 	displayVersion bool
 	filter         string
+	generate       bool
 	init           bool
 	listTasks      bool
 	output         string
@@ -49,35 +51,39 @@ func main() {
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
 	flag.BoolVar(&opts.which, "which", false, "print the path to the found tasks.toml, or an error")
+	flag.BoolVarP(&opts.generate, "generate", "g", false, "use AI to generate a task with the name specified. pass the prompt for the task after '--'. usage: tsk fib --generate -- generate fib numbers up to 10")
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
-	if help {
+	// options or commands that don't require parsing the tasks.toml and exit early
+	switch {
+	case help:
 		fmt.Printf("Usage: %s [options]\n", os.Args[0])
 		fmt.Println("Options:")
 		flag.PrintDefaults()
-		os.Exit(0)
-	}
-
-	if opts.init {
+		return
+	case opts.init:
 		if err := task.InitTaskfile(); err != nil {
 			fmt.Printf("couldn't init: %s\n", err.Error())
 			os.Exit(1)
 		}
 		fmt.Printf("created tasks.toml!\n")
 		return
-	}
-
-	if opts.displayVersion {
+	case opts.displayVersion:
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
+		return
+	case opts.generate:
+		// TODO: check for ops.cliArgs
+		resp, err := openai.GenerateTask(opts.tasks[0], opts.cliArgs)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(*resp)
 		return
 	}
 
-	if !output.IsValid(opts.output) {
-		fmt.Printf("--output must one of: %s\n", output.String())
-		os.Exit(1)
-	}
-
+	// separates the tasks to run any CLI_ARGS
+	//
 	// check if there are args passed after "--".
 	//   - if "--" is not present ArgsLenAtDash() returns -1.
 	//   - dash position 0 would be invocations like, `tsk -l -- foo`
@@ -88,16 +94,13 @@ func main() {
 		opts.tasks = flag.Args()
 	}
 
-	// cfg is the parsed task file
+	// parse the tasks.toml
 	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs, opts.listTasks)
 	if err != nil {
 		panic(err)
 	}
 
-	if opts.which {
-		fmt.Println(cfg.TaskFilePath)
-	}
-
+	// the executor runs tasks
 	exec := task.Executor{
 		Stdout: os.Stdout,
 		Stdin:  os.Stdin,
@@ -105,7 +108,16 @@ func main() {
 		Config: cfg,
 	}
 
+	// display the complete path to the parsed tasks.toml
+	if opts.which {
+		fmt.Println(cfg.TaskFilePath)
+	}
+
 	if opts.listTasks {
+		if !output.IsValid(opts.output) {
+			fmt.Printf("--output must one of: %s\n", output.String())
+			os.Exit(1)
+		}
 		exec.ListTasksFromTaskFile(regexp.MustCompile(opts.filter), output.OutputFormat(opts.output))
 		return
 	}
