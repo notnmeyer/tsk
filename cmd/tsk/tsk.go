@@ -56,6 +56,18 @@ func main() {
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
+	// separates the tasks to run any CLI_ARGS
+	//
+	// check if there are args passed after "--".
+	//   - if "--" is not present ArgsLenAtDash() returns -1.
+	//   - dash position 0 would be invocations like, `tsk -l -- foo`
+	if flag.CommandLine.ArgsLenAtDash() >= 0 {
+		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
+		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
+	} else {
+		opts.tasks = flag.Args()
+	}
+
 	// options or commands that don't require parsing the tasks.toml and exit early
 	switch {
 	case help:
@@ -86,18 +98,6 @@ func main() {
 
 		fmt.Println(*resp)
 		return
-	}
-
-	// separates the tasks to run any CLI_ARGS
-	//
-	// check if there are args passed after "--".
-	//   - if "--" is not present ArgsLenAtDash() returns -1.
-	//   - dash position 0 would be invocations like, `tsk -l -- foo`
-	if flag.CommandLine.ArgsLenAtDash() >= 0 {
-		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
-		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
-	} else {
-		opts.tasks = flag.Args()
 	}
 
 	// parse the tasks.toml
