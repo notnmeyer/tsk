@@ -43,6 +43,7 @@ cmds = [
 
 [tasks.test]
 desc = "Run tests"
+deps = [["copy_tsk_ref"]]
 cmds = ["go test ./... {{.CLI_ARGS}}"]
 
 [tasks.deps]
