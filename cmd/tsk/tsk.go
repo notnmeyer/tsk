@@ -35,6 +35,7 @@ type Options struct {
 }
 
 const defaultOutputFormat = output.OutputFormat(output.Text)
+const generateUsage = "tsk fib --generate -- generate fib numbers up to 10"
 
 func init() {
 	// TOML 1.1 features are behind a flag until officially released
@@ -73,11 +74,16 @@ func main() {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
 		return
 	case opts.generate:
-		// TODO: check for ops.cliArgs
+		if opts.cliArgs == "" {
+			fmt.Printf("you must describe the task to generate. usage: %s\n", generateUsage)
+			os.Exit(1)
+		}
+
 		resp, err := openai.GenerateTask(opts.tasks[0], opts.cliArgs)
 		if err != nil {
 			panic(err)
 		}
+
 		fmt.Println(*resp)
 		return
 	}
