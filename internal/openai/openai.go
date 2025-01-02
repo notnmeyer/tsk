@@ -11,11 +11,14 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 )
 
-type prompt struct {
+type systemPrompt struct {
 	Base            string `json:"base"`             // the base prompt
-	TaskName        string `json:"task_name"`        // the name of the generated task
-	TaskDesc        string `json:"task_desc"`        // the description of what the task does
 	FormatReference string `json:"format_reference"` // the reference of tsk's toml format
+}
+
+type userPrompt struct {
+	TaskName string `json:"task_name"` // the name of the generated task
+	TaskDesc string `json:"task_desc"` // the description of what the task does
 }
 
 //go:embed _reference_tasks.toml
@@ -24,7 +27,7 @@ var formatReference string
 //go:embed prompt/base.md
 var promptBase string
 
-var p = &prompt{
+var sp = &systemPrompt{
 	Base:            promptBase,
 	FormatReference: formatReference,
 }
@@ -39,30 +42,39 @@ func newClient() (*openai.Client, error) {
 	return client, nil
 }
 
-func GenerateTask(name, taskDesc string) (*string, error) {
+func GenerateTask(name, desc string) (*string, error) {
 	client, err := newClient()
 	if err != nil {
 		return nil, err
 	}
 	ctx := context.Background()
 
-	p.TaskName = name
-	p.TaskDesc = taskDesc
-
-	content, err := json.Marshal(p)
+	// prepare the system prompt
+	system, err := json.Marshal(sp)
 	if err != nil {
 		return nil, err
 	}
 
+	// prepare the user prompt
+	user, err := json.Marshal(&userPrompt{
+		TaskName: name,
+		TaskDesc: desc,
+	})
+
 	req := openai.ChatCompletionRequest{
-		Model: openai.GPT4o,
+		Model: openai.GPT4oLatest,
 		Messages: []openai.ChatCompletionMessage{
 			{
+				Role:    openai.ChatMessageRoleSystem,
+				Content: string(system),
+			},
+			{
 				Role:    openai.ChatMessageRoleUser,
-				Content: string(content),
+				Content: string(user),
 			},
 		},
 	}
+
 	resp, err := client.CreateChatCompletion(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("completion error: %v\n", err)

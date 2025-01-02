@@ -86,7 +86,7 @@ func main() {
 		fmt.Printf("tsk v%s, git:%s\n", version, commit)
 		return
 	case opts.generate:
-		if len(opts.tasks) == 0 || opts.cliArgs == "" {
+		if opts.cliArgs == "" {
 			fmt.Printf("you must describe the task to generate. usage: %s\n", generateUsage)
 			os.Exit(1)
 		}
