@@ -52,28 +52,23 @@ func main() {
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
-	if help {
+	switch {
+	case help:
 		fmt.Printf("Usage: %s [options]\n", os.Args[0])
 		fmt.Println("Options:")
 		flag.PrintDefaults()
-		os.Exit(0)
-	}
-
-	if opts.init {
+		return
+	case opts.displayVersion:
+		fmt.Printf("tsk v%s, git:%s\n", version, commit)
+		return
+	case opts.init:
 		if err := task.InitTaskfile(); err != nil {
 			fmt.Printf("couldn't init: %s\n", err.Error())
 			os.Exit(1)
 		}
 		fmt.Printf("created tasks.toml!\n")
 		return
-	}
-
-	if opts.displayVersion {
-		fmt.Printf("tsk v%s, git:%s\n", version, commit)
-		return
-	}
-
-	if !output.IsValid(opts.output) {
+	case !output.IsValid(opts.output):
 		fmt.Printf("--output must one of: %s\n", output.String())
 		os.Exit(1)
 	}
