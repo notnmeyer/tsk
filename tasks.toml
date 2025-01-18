@@ -37,7 +37,7 @@ cmds = [
 
 [tasks.test]
 desc = "Run tests"
-cmds = ["go test ./... {{.CLI_ARGS}}"]
+cmds = ["go test ./... -cover {{.CLI_ARGS}}"]
 
 [tasks.deps]
 desc = "Install deps"
