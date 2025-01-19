@@ -52,6 +52,7 @@ func main() {
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
+	// flags that exit early and don't require parsing the taskfile
 	switch {
 	case help:
 		fmt.Printf("Usage: %s [options]\n", os.Args[0])
