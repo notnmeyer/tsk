@@ -52,41 +52,29 @@ func main() {
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
 
-	if help {
+	// flags that exit early and don't require parsing the taskfile
+	switch {
+	case help:
 		fmt.Printf("Usage: %s [options]\n", os.Args[0])
 		fmt.Println("Options:")
 		flag.PrintDefaults()
-		os.Exit(0)
-	}
-
-	if opts.init {
+		return
+	case opts.displayVersion:
+		fmt.Printf("tsk v%s, git:%s\n", version, commit)
+		return
+	case opts.init:
 		if err := task.InitTaskfile(); err != nil {
 			fmt.Printf("couldn't init: %s\n", err.Error())
 			os.Exit(1)
 		}
 		fmt.Printf("created tasks.toml!\n")
 		return
-	}
-
-	if opts.displayVersion {
-		fmt.Printf("tsk v%s, git:%s\n", version, commit)
-		return
-	}
-
-	if !output.IsValid(opts.output) {
+	case !output.IsValid(opts.output):
 		fmt.Printf("--output must one of: %s\n", output.String())
 		os.Exit(1)
 	}
 
-	// check if there are args passed after "--".
-	//   - if "--" is not present ArgsLenAtDash() returns -1.
-	//   - dash position 0 would be invocations like, `tsk -l -- foo`
-	if flag.CommandLine.ArgsLenAtDash() >= 0 {
-		opts.tasks = flag.Args()[:flag.CommandLine.ArgsLenAtDash()]
-		opts.cliArgs = strings.Join(flag.Args()[flag.CommandLine.ArgsLenAtDash():], " ")
-	} else {
-		opts.tasks = flag.Args()
-	}
+	opts.tasks, opts.cliArgs = parseArgs(flag.Args())
 
 	// cfg is the parsed task file
 	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs, opts.listTasks)
@@ -124,4 +112,33 @@ func main() {
 	}
 
 	exec.RunTasks(exec.Config, &opts.tasks)
+}
+
+// splits args like [task1, task2 --, arg1, arg2] into
+// - tasks = []string{"task1", "task2"}
+// - cliArgs = "arg1 arg2"
+func parseArgs(args []string) (tasks []string, cliArgs string) {
+	cliArgsIndex := func() int {
+		for index, arg := range args {
+			if arg == "--" {
+				return index
+			}
+		}
+		return -1
+	}()
+
+	hasCliArgs := func() bool {
+		if cliArgsIndex >= 0 {
+			return true
+		}
+		return false
+	}()
+
+	if hasCliArgs {
+		tasks = args[:cliArgsIndex]
+		cliArgs = strings.Join(args[cliArgsIndex+1:], " ")
+		return
+	}
+
+	return args, ""
 }
