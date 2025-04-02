@@ -1,6 +1,9 @@
 module github.com/notnmeyer/tsk
 
-go 1.22
+go 1.23
+
+toolchain go1.23.8
+
 require (
 	github.com/BurntSushi/toml v1.4.0
 	github.com/joho/godotenv v1.5.1
