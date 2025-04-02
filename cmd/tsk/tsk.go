@@ -74,7 +74,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	opts.tasks, opts.cliArgs = parseArgs(flag.Args())
+	opts.tasks, opts.cliArgs = parseArgs(flag.Args(), flag.CommandLine.ArgsLenAtDash())
 
 	// cfg is the parsed task file
 	cfg, err := task.NewTaskConfig(opts.taskFile, opts.cliArgs, opts.listTasks)
@@ -114,31 +114,11 @@ func main() {
 	exec.RunTasks(exec.Config, &opts.tasks)
 }
 
-// splits args like [task1, task2 --, arg1, arg2] into
-// - tasks = []string{"task1", "task2"}
-// - cliArgs = "arg1 arg2"
-func parseArgs(args []string) (tasks []string, cliArgs string) {
-	cliArgsIndex := func() int {
-		for index, arg := range args {
-			if arg == "--" {
-				return index
-			}
-		}
-		return -1
-	}()
-
-	hasCliArgs := func() bool {
-		if cliArgsIndex >= 0 {
-			return true
-		}
-		return false
-	}()
-
-	if hasCliArgs {
-		tasks = args[:cliArgsIndex]
-		cliArgs = strings.Join(args[cliArgsIndex+1:], " ")
-		return
+func parseArgs(args []string, dashIndex int) (tasks []string, cliArgs string) {
+	if dashIndex >= 0 {
+		tasks = args[:dashIndex]
+		cliArgs = strings.Join(args[dashIndex:], " ")
+		return tasks, cliArgs
 	}
-
 	return args, ""
 }
