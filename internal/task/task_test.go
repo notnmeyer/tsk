@@ -16,6 +16,208 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestConfig_CompileEnv(t *testing.T) {
+	t.Run("without dotenv", func(t *testing.T) {
+		config := Config{
+			Env: map[string]string{
+				"FOO": "bar",
+				"BAZ": "qux",
+			},
+			DotEnv:      "",
+			TaskFileDir: "/some/path",
+		}
+
+		env, err := config.CompileEnv()
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		expectedEnv := []string{
+			"FOO=bar",
+			"BAZ=qux",
+		}
+
+		if len(env) != len(expectedEnv) {
+			t.Fatalf("expected %d env vars, got %d", len(expectedEnv), len(env))
+		}
+
+		for _, e := range expectedEnv {
+			found := false
+			for _, actual := range env {
+				if e == actual {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("expected env var %s not found", e)
+			}
+		}
+	})
+
+	t.Run("with dotenv", func(t *testing.T) {
+		dotEnvContent := "FOO=bar_from_dotenv\nBAZ=qux_from_dotenv\n"
+		dotEnvPath := createTempDotEnv(t, dotEnvContent)
+		defer removeFile(t, dotEnvPath)
+
+		config := Config{
+			Env: map[string]string{
+				"FOO": "bar",
+			},
+			DotEnv:      filepath.Base(dotEnvPath),
+			TaskFileDir: filepath.Dir(dotEnvPath),
+		}
+
+		env, err := config.CompileEnv()
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		expectedEnv := []string{
+			"FOO=bar_from_dotenv", // overwritten by dotenv
+			"BAZ=qux_from_dotenv",
+		}
+
+		for _, e := range expectedEnv {
+			found := false
+			for _, actual := range env {
+				if e == actual {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("expected env var %s not found", e)
+			}
+		}
+	})
+
+	t.Run("error loading dotenv", func(t *testing.T) {
+		config := Config{
+			DotEnv:      "nonexistent.env",
+			TaskFileDir: "/some/nonexistent/path",
+		}
+
+		_, err := config.CompileEnv()
+		if err == nil {
+			t.Fatalf("expected error, got nil")
+		}
+	})
+}
+
+func TestTask_CompileEnv(t *testing.T) {
+	t.Run("with task-specific env and inherited environment", func(t *testing.T) {
+		baseEnv := []string{"GLOBAL=global_value"}
+		task := Task{
+			Env: map[string]string{
+				"TASK_KEY": "task_value",
+			},
+			Pure: false,
+		}
+
+		compiledEnv, err := task.CompileEnv(baseEnv)
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		expectedEnv := []string{
+			"GLOBAL=global_value",
+			"TASK_KEY=task_value",
+		}
+
+		for _, expected := range expectedEnv {
+			found := false
+			for _, actual := range compiledEnv {
+				if actual == expected {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("expected env var %s not found", expected)
+			}
+		}
+	})
+
+	t.Run("pure environment", func(t *testing.T) {
+		task := Task{
+			Env: map[string]string{
+				"TASK_KEY": "task_value",
+			},
+			Pure: true,
+		}
+
+		compiledEnv, err := task.CompileEnv([]string{})
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		expectedEnv := []string{
+			"TASK_KEY=task_value",
+			"USER=" + os.Getenv("USER"),
+			"HOME=" + os.Getenv("HOME"),
+		}
+
+		for _, expected := range expectedEnv {
+			found := false
+			for _, actual := range compiledEnv {
+				if actual == expected {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("expected env var %s not found", expected)
+			}
+		}
+	})
+
+	t.Run("with dotenv", func(t *testing.T) {
+		dotEnvContent := "DOTENV_KEY=dotenv_value\n"
+		dotEnvPath := createTempDotEnv(t, dotEnvContent)
+		defer removeFile(t, dotEnvPath)
+
+		task := Task{
+			DotEnv: filepath.Base(dotEnvPath),
+			Dir:    filepath.Dir(dotEnvPath),
+		}
+
+		compiledEnv, err := task.CompileEnv([]string{})
+		if err != nil {
+			t.Fatalf("expected no error, got: %v", err)
+		}
+
+		expectedEnv := []string{
+			"DOTENV_KEY=dotenv_value",
+		}
+
+		for _, expected := range expectedEnv {
+			found := false
+			for _, actual := range compiledEnv {
+				if actual == expected {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("expected env var %s not found in result", expected)
+			}
+		}
+	})
+
+	t.Run("error loading dotenv", func(t *testing.T) {
+		task := Task{
+			DotEnv: "nonexistent.env",
+			Dir:    "/some/nonexistent/path",
+		}
+
+		_, err := task.CompileEnv([]string{})
+		if err == nil {
+			t.Fatalf("expected error, got nil")
+		}
+	})
+}
+
 func TestRunCmd(t *testing.T) {
 	out := new(bytes.Buffer)
 	exec := Executor{
@@ -345,5 +547,33 @@ func TestTemplatesWithPlaceholders(t *testing.T) {
 	exec.RunTasks(exec.Config, &[]string{"template"})
 	if !expected.Match(out.Bytes()) {
 		t.Errorf("Expected '%s' to match '%s'", placeholder, out.String())
+	}
+}
+
+//
+// helpers
+//
+
+// helper for creating .env
+func createTempDotEnv(t *testing.T, content string) string {
+	t.Helper()
+	tmpFile, err := os.CreateTemp("", "test_dotenv_*.env")
+	if err != nil {
+		t.Fatalf("failed to create temp file: %v", err)
+	}
+	_, err = tmpFile.Write([]byte(content))
+	if err != nil {
+		t.Fatalf("failed to write temp file: %v", err)
+	}
+	tmpFile.Close()
+	return tmpFile.Name()
+}
+
+// helper to remove a file
+func removeFile(t *testing.T, path string) {
+	t.Helper()
+	err := os.Remove(path)
+	if err != nil {
+		t.Fatalf("failed to rm file %s: %v", path, err)
 	}
 }
