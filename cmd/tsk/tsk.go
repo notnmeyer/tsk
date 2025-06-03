@@ -111,7 +111,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	exec.RunTasks(exec.Config, &opts.tasks)
+	if err := exec.RunTasks(exec.Config, &opts.tasks); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func parseArgs(args []string, dashIndex int) (tasks []string, cliArgs string) {
