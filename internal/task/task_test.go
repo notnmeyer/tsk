@@ -99,8 +99,9 @@ func TestConfig_CompileEnv(t *testing.T) {
 		}
 
 		_, err := config.CompileEnv()
-		if err == nil {
-			t.Fatalf("expected error, got nil")
+		// we expect this to be non-fatal
+		if err != nil {
+			t.Fatalf("expected nil, got err: %v", err)
 		}
 	})
 }
@@ -202,18 +203,6 @@ func TestTask_CompileEnv(t *testing.T) {
 			if !found {
 				t.Errorf("expected env var %s not found in result", expected)
 			}
-		}
-	})
-
-	t.Run("error loading dotenv", func(t *testing.T) {
-		task := Task{
-			DotEnv: "nonexistent.env",
-			Dir:    "/some/nonexistent/path",
-		}
-
-		_, err := task.CompileEnv([]string{})
-		if err == nil {
-			t.Fatalf("expected error, got nil")
 		}
 	})
 }
