@@ -42,7 +42,9 @@ func readDotEnv(filename string) (map[string]string, error) {
 func appendDotEnvToEnv(env []string, dotenv string) ([]string, error) {
 	additionalEnv, err := readDotEnv(dotenv)
 	if err != nil {
-		return nil, err
+		// the dotenv file missing is non-fatal. log a warning and continue
+		fmt.Printf("Warning: Could not load dotenv file %s: %v\n", dotenv, err)
+		return env, nil
 	}
 	env = append(env, ConvertEnvToStringSlice(additionalEnv)...)
 	return env, nil
