@@ -1,10 +1,4 @@
-{ pkgs ? import (fetchTarball "channel:nixos-unstable") {} }:
-
-pkgs.mkShell {
-  packages = with pkgs; [
-    delve
-    go_1_22
-    gopls
-    goreleaser
-  ];
-}
+(import (fetchTarball
+  "https://github.com/edolstra/flake-compat/archive/master.tar.gz") {
+    src = ./.;
+  }).shellNix
