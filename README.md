@@ -29,4 +29,4 @@ https://notnmeyer.github.io/tsk-docs/
 
 ## release
 
-tag a new release with, `env version=0.0.0 tsk release`, and let GHA do it its thing.
+tag a new release with, `tsk release -- v0.0.0`, and let GHA do it its thing.
