@@ -90,3 +90,65 @@ brews:
     install: |-
       bin.install "tsk"
       fish_completion.install "completions/tsk.fish"
+
+# .goreleaser.yaml
+npms:
+  - name: "@notnmeyer/tsk"
+    description: "A simple task runner and build tool with TOML configuration."
+    homepage: https://notnmeyer.github.io/tsk-docs/docs/installation/
+    keywords:
+      - cli
+      - make
+      - task runner
+      - taskrunner
+    license: MIT
+    email: 672246+notnmeyer@users.noreply.github.com
+    repository: https://github.com/notnmeyer/tsk
+    bugs: https://github.com/notnmeyer/tsk/issues
+
+    # Additional files/globs you want to add to the package.
+    #
+    # Default: ["README*", "LICENSE*"]
+    # Templates: allowed.
+    extra_files:
+      - glob: ./path/to/file.txt
+        name_template: "file.txt"
+
+    # Additional templated files to add to the app bundle.
+    # Those files will have their contents pass through the template engine,
+    # and its results will be added to the archive.
+    # and/or to add more files.
+    #
+    # Templates: allowed.
+    templated_extra_files:
+      # src can also be a glob, as long as dst is a directory.
+      - src: "LICENSE.md.tpl"
+        dst: LICENSE.md
+
+    # Access level: public or restricted.
+    access: public
+
+    # Package format: tar, tgz, tar.gz, zip, or binary.
+    #
+    # Required: if more than one archive format is being used.
+    format: tgz
+
+    # Allows to further filter the artifacts.
+    #
+    # Artifacts that do not match this expression will be ignored.
+    #
+    # Templates: allowed.
+    if: '{{ eq .Os "linux" }}'
+
+    # Disables the configuration.
+    # Any value different of 'true' will be considered 'false'.
+    #
+    # Templates: allowed.
+    disable: "{{ gt .Patch 0 }}"
+
+    # URL which is determined by the given Token (github, gitlab or gitea).
+    #
+    # Default depends on the client.
+    # Templates: allowed.
+    # Since: v2.10.
+    url_template: "https://github.mycompany.com/foo/bar/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
