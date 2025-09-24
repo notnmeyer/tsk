@@ -23,7 +23,7 @@ jobs:
       - uses: goreleaser/goreleaser-action@v5
         with:
           distribution: goreleaser
-          version: latest
+          version: "~> v2"
           args: release --clean
         env:
           CODESIGN_IDENTITY: "-" # for ad-hoc signing
