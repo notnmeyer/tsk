@@ -1,20 +1,14 @@
 [tasks.run]
 desc = "Run tsk"
-cmds = [
-  "go run cmd/tsk/tsk.go {{.CLI_ARGS}}"
-]
+cmds = ["go run cmd/tsk/tsk.go {{.CLI_ARGS}}"]
 
 [tasks.build]
 desc = "Build the project"
-cmds = [
-  "go build -o bin/tsk -v cmd/tsk/tsk.go"
-]
+cmds = ["go build -o bin/tsk -v cmd/tsk/tsk.go"]
 
 [tasks.clean]
 desc = "Remove build artifacts"
-cmds = [
-  "rm -rf ./dist/*"
-]
+cmds = ["rm -rf ./dist/*"]
 
 [tasks.release]
 desc = "Trigger a release"
@@ -23,17 +17,12 @@ Create and push a new tag to GitHub, triggering a new release from CI.
 
 usage: `tsk release -- v0.0.0`
 '''
-cmds = [
-  "git tag {{.CLI_ARGS}}",
-  "git push origin {{.CLI_ARGS}}",
-]
+cmds = ["git tag {{.CLI_ARGS}}", "git push origin {{.CLI_ARGS}}"]
 
-[tasks.release_dry]
+[tasks."release:dry"]
 desc = "goreleaser dry run"
 dotenv = ".env"
-cmds = [
-  "goreleaser release --clean --skip-publish --skip-validate"
-]
+cmds = ["goreleaser release --snapshot --clean --skip=publish"]
 
 [tasks.test]
 desc = "Run tests"
@@ -55,13 +44,8 @@ usage: version=0.8.1 platform=Darwin arch=arm64 tsk install_release
 [tasks.sign]
 desc = "Sign binaries"
 dotenv = ".env"
-cmds = [
-  "gon gon-arm64.hcl",
-  "gon gon-amd64.hcl",
-]
+cmds = ["gon gon-arm64.hcl", "gon gon-amd64.hcl"]
 
 [tasks.install_completions]
 desc = "Install shell completions"
-cmds = [
-  "cp completions/tsk.fish ~/.config/fish/completions/"
-]
+cmds = ["cp completions/tsk.fish ~/.config/fish/completions/"]

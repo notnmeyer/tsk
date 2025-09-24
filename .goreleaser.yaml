@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -46,10 +48,7 @@ builds:
           output: true
 
 archives:
-  - builds:
-      - linux
-      - macos
-    name_template: >-
+  - name_template: >-
       {{ .ProjectName }}_v{{ .Version }}_
       {{- title .Os }}_
       {{- if eq .Arch "amd64" }}x86_64
@@ -65,7 +64,7 @@ checksum:
   name_template: checksums.txt
 
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  version_template: "{{ incpatch .Version }}-next"
 
 changelog:
   sort: asc
@@ -75,7 +74,7 @@ changelog:
       - "^test:"
 
 # https://goreleaser.com/customization/homebrew/
-brews:
+homebrew_casks:
   - name: tsk
     homepage: "https://github.com/notnmeyer/tsk"
     description: "A simple task runner and build tool with TOML configuration."
@@ -87,6 +86,3 @@ brews:
       name: homebrew-tsk
       token: "{{ .Env.HOMEBREW_TAP_REPO_GITHUB_TOKEN }}"
     skip_upload: auto
-    install: |-
-      bin.install "tsk"
-      fish_completion.install "completions/tsk.fish"
