@@ -8,7 +8,9 @@
 
 https://notnmeyer.github.io/tsk-docs/docs/installation
 
-tl;dr, `brew install notnmeyer/tsk/tsk`
+tl;dr, `brew install --cask notnmeyer/tsk/tsk`
+
+Note that with version 0.12.1, tsk is installed as a cask. If you have an earlier version installed, remove it first with `brew uninstall tsk`.
 
 ## example
 
