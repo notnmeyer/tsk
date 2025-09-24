@@ -91,7 +91,8 @@ brews:
       bin.install "tsk"
       fish_completion.install "completions/tsk.fish"
 
-# .goreleaser.yaml
+
+# ugh, goreleaser pro only
 npms:
   - name: "@notnmeyer/tsk"
     description: "A simple task runner and build tool with TOML configuration."
