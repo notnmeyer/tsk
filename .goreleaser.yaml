@@ -1,3 +1,5 @@
+version: 2
+
 before:
   hooks:
     - go mod tidy
@@ -75,7 +77,7 @@ changelog:
       - "^test:"
 
 # https://goreleaser.com/customization/homebrew/
-brews:
+homebrew_casks:
   - name: tsk
     homepage: "https://github.com/notnmeyer/tsk"
     description: "A simple task runner and build tool with TOML configuration."
@@ -87,6 +89,3 @@ brews:
       name: homebrew-tsk
       token: "{{ .Env.HOMEBREW_TAP_REPO_GITHUB_TOKEN }}"
     skip_upload: auto
-    install: |-
-      bin.install "tsk"
-      fish_completion.install "completions/tsk.fish"
