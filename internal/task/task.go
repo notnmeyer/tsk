@@ -47,6 +47,7 @@ type Executor struct {
 	Stdin  io.Reader
 	Stderr io.Writer
 	Config *Config
+	Prefix bool
 }
 
 // sets the top-level env
@@ -88,6 +89,13 @@ func (t *Task) CompileEnv(env []string) ([]string, error) {
 	}
 
 	return env, nil
+}
+
+func (exec *Executor) prefixedWriter(w io.Writer, prefix string) io.Writer {
+	if exec.Prefix {
+		return newPrefixWriter(w, prefix)
+	}
+	return w
 }
 
 func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
@@ -138,6 +146,7 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			Stderr: newPrefixWriter(exec.Stderr, task+":: "),
 			Stdin:  exec.Stdin,
 			Config: exec.Config,
+			Prefix: exec.Prefix,
 		}
 
 		// if a task contains cmds, run them
