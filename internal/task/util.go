@@ -3,11 +3,38 @@ package task
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"sort"
 	"text/template"
 
 	"github.com/joho/godotenv"
 )
+
+type prefixWriter struct {
+	writer io.Writer
+	prefix string
+	buf    []byte
+}
+
+func newPrefixWriter(w io.Writer, prefix string) *prefixWriter {
+	return &prefixWriter{writer: w, prefix: prefix}
+}
+
+func (p *prefixWriter) Write(b []byte) (int, error) {
+	p.buf = append(p.buf, b...)
+	for {
+		idx := bytes.IndexByte(p.buf, '\n')
+		if idx < 0 {
+			break
+		}
+		line := p.buf[:idx+1]
+		if _, err := fmt.Fprintf(p.writer, "%s%s", p.prefix, line); err != nil {
+			return 0, err
+		}
+		p.buf = p.buf[idx+1:]
+	}
+	return len(b), nil
+}
 
 type Vals struct {
 	CLI_ARGS string

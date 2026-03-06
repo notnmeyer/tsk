@@ -133,10 +133,17 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			return err
 		}
 
+		taskExec := &Executor{
+			Stdout: newPrefixWriter(exec.Stdout, task+":: "),
+			Stderr: newPrefixWriter(exec.Stderr, task+":: "),
+			Stdin:  exec.Stdin,
+			Config: exec.Config,
+		}
+
 		// if a task contains cmds, run them
 		if len(taskConfig.Cmds) > 0 {
 			for _, cmd := range taskConfig.Cmds {
-				err := exec.runCommand(cmd, taskConfig.Dir, env)
+				err := taskExec.runCommand(cmd, taskConfig.Dir, env)
 				if err != nil {
 					fmt.Println(err.Error())
 					// if the cmd exited with an error, bail immediately
@@ -146,7 +153,7 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 		} else {
 			// if there are no cmds then we intend to run a script with the name name as the task
 			script := fmt.Sprintf("%s/%s", exec.Config.ScriptDir, task)
-			err := exec.runCommand(script, taskConfig.Dir, env)
+			err := taskExec.runCommand(script, taskConfig.Dir, env)
 			if err != nil {
 				fmt.Println(err.Error())
 				// if the cmd exited with an error, bail immediately
