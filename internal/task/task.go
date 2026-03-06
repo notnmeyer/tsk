@@ -142,8 +142,8 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 		}
 
 		taskExec := &Executor{
-			Stdout: newPrefixWriter(exec.Stdout, task+":: "),
-			Stderr: newPrefixWriter(exec.Stderr, task+":: "),
+			Stdout: exec.prefixedWriter(exec.Stdout, "::"+task+":: "),
+			Stderr: exec.prefixedWriter(exec.Stderr, "::"+task+":: "),
 			Stdin:  exec.Stdin,
 			Config: exec.Config,
 			Prefix: exec.Prefix,
