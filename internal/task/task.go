@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	output "github.com/notnmeyer/tsk/internal/outputformat"
 
@@ -48,6 +49,7 @@ type Executor struct {
 	Stderr      io.Writer
 	Config      *Config
 	Prefix      bool
+	Time        bool
 	colorIndex  int
 	taskColors  map[string]string
 }
@@ -131,6 +133,8 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			taskConfig.Dir = config.TaskFileDir
 		}
 
+		taskStart := time.Now()
+
 		if len(taskConfig.Deps) > 0 {
 			for _, depGroup := range taskConfig.Deps {
 				var wg sync.WaitGroup
@@ -162,6 +166,7 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 			Stdin:  exec.Stdin,
 			Config: exec.Config,
 			Prefix: exec.Prefix,
+			Time:   exec.Time,
 		}
 
 		// if a task contains cmds, run them
@@ -183,6 +188,10 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 				// if the cmd exited with an error, bail immediately
 				os.Exit(1)
 			}
+		}
+
+		if exec.Time && exec.Stderr != nil {
+			fmt.Fprintf(exec.Stderr, "::%s:: duration %s\n", task, formatDuration(time.Since(taskStart)))
 		}
 	}
 	return nil
@@ -312,6 +321,18 @@ func (exec *Executor) VerifyTasks(tasks []string) error {
 		}
 	}
 	return nil
+}
+
+func formatDuration(d time.Duration) string {
+	if d < time.Second {
+		return fmt.Sprintf("%dms", d.Milliseconds())
+	}
+	if d < time.Minute {
+		return fmt.Sprintf("%.2fs", d.Seconds())
+	}
+	m := int(d.Minutes())
+	s := d.Seconds() - float64(m*60)
+	return fmt.Sprintf("%dm%.2fs", m, s)
 }
 
 func filterTasks(tasks *map[string]Task, regex *regexp.Regexp) map[string]Task {
