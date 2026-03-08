@@ -26,6 +26,7 @@ type Options struct {
 	init           bool
 	listTasks      bool
 	output         string
+	prefix         bool
 	pure           bool
 	taskFile       string
 	tasks          []string
@@ -46,6 +47,7 @@ func main() {
 	flag.BoolVar(&opts.init, "init", false, "create a tasks.toml file in $PWD")
 	flag.BoolVarP(&opts.listTasks, "list", "l", false, "list tasks")
 	flag.StringVarP(&opts.output, "output", "o", "text", fmt.Sprintf("output format (applies only to --list) (one of: %s)", output.String()))
+	flag.BoolVar(&opts.prefix, "prefix", false, "prefix task output with the task name")
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
 	flag.BoolVar(&opts.which, "which", false, "print the path to the found tasks.toml, or an error")
@@ -91,6 +93,7 @@ func main() {
 		Stdin:  os.Stdin,
 		Stderr: os.Stderr,
 		Config: cfg,
+		Prefix: opts.prefix,
 	}
 
 	if opts.listTasks {
