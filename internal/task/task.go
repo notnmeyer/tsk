@@ -43,11 +43,13 @@ type Task struct {
 }
 
 type Executor struct {
-	Stdout io.Writer
-	Stdin  io.Reader
-	Stderr io.Writer
-	Config *Config
-	Prefix bool
+	Stdout      io.Writer
+	Stdin       io.Reader
+	Stderr      io.Writer
+	Config      *Config
+	Prefix      bool
+	colorIndex  int
+	taskColors  map[string]string
 }
 
 // sets the top-level env
@@ -91,9 +93,22 @@ func (t *Task) CompileEnv(env []string) ([]string, error) {
 	return env, nil
 }
 
-func (exec *Executor) prefixedWriter(w io.Writer, prefix string) io.Writer {
+func (exec *Executor) colorForTask(task string) string {
+	if exec.taskColors == nil {
+		exec.taskColors = make(map[string]string)
+	}
+	if color, ok := exec.taskColors[task]; ok {
+		return color
+	}
+	color := prefixColors[exec.colorIndex%len(prefixColors)]
+	exec.colorIndex++
+	exec.taskColors[task] = color
+	return color
+}
+
+func (exec *Executor) prefixedWriter(w io.Writer, prefix string, task string) io.Writer {
 	if exec.Prefix {
-		return newPrefixWriter(w, prefix)
+		return newPrefixWriter(w, prefix, exec.colorForTask(task))
 	}
 	return w
 }
@@ -142,8 +157,8 @@ func (exec *Executor) RunTasks(config *Config, tasks *[]string) error {
 		}
 
 		taskExec := &Executor{
-			Stdout: exec.prefixedWriter(exec.Stdout, "::"+task+":: "),
-			Stderr: exec.prefixedWriter(exec.Stderr, "::"+task+":: "),
+			Stdout: exec.prefixedWriter(exec.Stdout, "::"+task+":: ", task),
+			Stderr: exec.prefixedWriter(exec.Stderr, "::"+task+":: ", task),
 			Stdin:  exec.Stdin,
 			Config: exec.Config,
 			Prefix: exec.Prefix,

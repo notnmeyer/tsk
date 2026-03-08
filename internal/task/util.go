@@ -10,14 +10,33 @@ import (
 	"github.com/joho/godotenv"
 )
 
+// ANSI color codes for prefix coloring. These are chosen for visual distinction.
+var prefixColors = []string{
+	"\033[36m",  // cyan
+	"\033[33m",  // yellow
+	"\033[35m",  // magenta
+	"\033[32m",  // green
+	"\033[34m",  // blue
+	"\033[31m",  // red
+	"\033[96m",  // bright cyan
+	"\033[93m",  // bright yellow
+	"\033[95m",  // bright magenta
+	"\033[92m",  // bright green
+	"\033[94m",  // bright blue
+	"\033[91m",  // bright red
+}
+
+const colorReset = "\033[0m"
+
 type prefixWriter struct {
 	writer io.Writer
 	prefix string
 	buf    []byte
 }
 
-func newPrefixWriter(w io.Writer, prefix string) *prefixWriter {
-	return &prefixWriter{writer: w, prefix: prefix}
+func newPrefixWriter(w io.Writer, prefix string, color string) *prefixWriter {
+	coloredPrefix := color + prefix + colorReset
+	return &prefixWriter{writer: w, prefix: coloredPrefix}
 }
 
 func (p *prefixWriter) Write(b []byte) (int, error) {
