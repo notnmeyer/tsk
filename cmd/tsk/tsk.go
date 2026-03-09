@@ -30,6 +30,7 @@ type Options struct {
 	pure           bool
 	taskFile       string
 	tasks          []string
+	time           bool
 	which          bool
 }
 
@@ -45,6 +46,7 @@ func main() {
 	flag.BoolVar(&opts.prefix, "prefix", false, "prefix task output with the task name")
 	flag.BoolVarP(&opts.pure, "pure", "", false, "don't inherit the parent env")
 	flag.StringVarP(&opts.taskFile, "file", "f", "", "taskfile to use")
+	flag.BoolVar(&opts.time, "time", false, "show task duration after completion")
 	flag.BoolVar(&opts.which, "which", false, "print the path to the found tasks.toml, or an error")
 	flag.BoolVarP(&help, "help", "h", false, "")
 	flag.Parse()
@@ -89,6 +91,7 @@ func main() {
 		Stderr: os.Stderr,
 		Config: cfg,
 		Prefix: opts.prefix,
+		Time:   opts.time,
 	}
 
 	if opts.listTasks {
